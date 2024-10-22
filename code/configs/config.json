@@ -1,7 +1,24 @@
 {
+  "name": "efficientnet_b0_baseline",
   "batch_size": 64,
   "learning_rate": 3e-4,
   "num_epochs":10,
   "image_height":64,
-  "image_width":96
+  "image_width":96,
+  "pos_weight": 0.1633,
+  "train_txt": [
+    "All_train_lab.txt"
+  ],
+  "val_txt": [
+    "E01_Global_val_lab.txt",
+    "E04_Local_Match_val_lab.txt",
+    "E05_DST_val_lab.txt",
+    "E06_Twente_val_lab.txt",
+    "E07_Lincoln_val_lab.txt",
+    "E09_UNIBO_v2_val_lab.txt",
+    "ManualMorphs_01_val_lab.txt",
+    "FEI_val_lab.txt",
+    "facelab_london_val_lab.txt",
+    "BaseBio_All_eval_lab.txt"
+  ]
 }
