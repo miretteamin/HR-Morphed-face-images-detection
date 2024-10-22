@@ -1,0 +1,4 @@
+- https://pages.nist.gov/frvt/html/frvt_morph.html
+- https://antispoofing.org/face-morphing-detection-necessity-techniques-and-potential-challenges/#morphed-face-image-manual-detection
+- https://www.christoph-busch.de/projects-mad.html
+- https://github.com/nz0001na/Face_Morphing_Repository
