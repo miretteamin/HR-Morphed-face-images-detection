@@ -53,7 +53,7 @@ def TPR_FPR(y_true: np.ndarray, y_pred: np.ndarray, threshold: float) -> tuple:
     return tpr, fpr
 
 
-def F1_score(y_true: np.ndarray, y_pred: np.ndarray, threshold: float) -> float:
+def F1_Score(y_true: np.ndarray, y_pred: np.ndarray, threshold: float) -> float:
     """
     Compute the F1 Score.
     

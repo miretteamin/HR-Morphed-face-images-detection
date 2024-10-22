@@ -1,5 +1,6 @@
 import os
 
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -9,12 +10,16 @@ import torchvision.models as models
 import json
 import argparse
 import tqdm
+import wandb
 
 
 from data import MorphDataset
+from metrics import F1_Score, MACER, BPCER
 
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+wandb.login(key='b720adf497c3c34f4e18be46e08aaba5ff31321b')
 
 
 def count_parameters(model):
@@ -23,6 +28,10 @@ def count_parameters(model):
 
 
 def train(config):
+
+    wandb.init(project="face-morph-detection", config=config, entity="ecole-polytechnique-org", name=config["name"])
+
+
     train_dataset = MorphDataset(dataset_dir=config["dataset_dir"], txt_paths=config["train_txt"])
     val_dataset = MorphDataset(dataset_dir=config["dataset_dir"], txt_paths=config["val_txt"])
 
@@ -54,7 +63,8 @@ def train(config):
             optimizer.step()
 
             running_loss += loss.item()
-
+            
+        train_loss = running_loss / len(train_loader)
         print(f'Epoch [{epoch + 1}/{config["num_epochs"]}], Train loss: {running_loss/len(train_dataset):.10f}')
 
         model.eval()
@@ -74,9 +84,29 @@ def train(config):
                 'optimizer_state_dict': optimizer.state_dict(),  # Save optimizer state (optional)
                 'val_loss': val_running_loss / len(val_dataset),  # Save current validation loss
             }, os.path.join(config["save_dir"], f"model_epoch_{epoch+1}.pth"))
-
+        
+        val_loss = val_running_loss / len(val_loader)
         print(f'Epoch [{epoch + 1}/{config["num_epochs"]}], Val loss: {val_running_loss/len(val_dataset):.3f}')
 
+        # Calculate metrics
+        all_labels = np.array(all_labels)
+        all_outputs = np.array(all_outputs)
+
+        f1 = F1_Score(all_labels, all_outputs)
+        macer = MACER(all_labels, all_outputs)
+        bpcer = BPCER(all_labels, all_outputs)
+
+        # Log metrics with wandb
+        wandb.log({
+            "epoch": epoch + 1,
+            "train_loss": train_loss,
+            "val_loss": val_loss,
+            "f1_score": f1,
+            "macer": macer,
+            "bpcer": bpcer
+        })
+
+    wandb.finish()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
