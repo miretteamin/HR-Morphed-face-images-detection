@@ -153,9 +153,12 @@ def train(config):
             "epoch": epoch + 1,
             "train_loss": train_loss,
             "val_loss": val_loss,
-            "f1_score": f1,
-            "macer": macer,
-            "bpcer": bpcer
+            "accuracy_val": acc,
+            "precision_val": prec,
+            "recall_val": rec,
+            "f1_score_val": f1,
+            "macer_val": macer,
+            "bpcer_val": bpcer
         })
 
     wandb.finish()

@@ -54,8 +54,8 @@ def MACER(y_true: np.ndarray, y_pred: np.ndarray, threshold: float = 0.5) -> flo
     
     y_pred = (y_pred > threshold).astype(int)
 
-    _, _, morph_misclassified, _ = confusion_matrix.ravel()
-    morph_count = np.sum(y_true == 1)
+    _, _, morph_misclassified, tp = confusion_matrix.ravel()
+    morph_count = morph_misclassified + tp
     return morph_misclassified / morph_count if morph_count != 0 else 0
 
 
@@ -70,9 +70,9 @@ def BPCER(y_true: np.ndarray, y_pred: np.ndarray, threshold: float = 0.5) -> flo
         raise ValueError("y_true and y_pred must have the same length")
     
     y_pred = (y_pred > threshold).astype(int)
-    _, bona_fide_misclassified, _, _ = confusion_matrix(y_true, y_pred).ravel()
+    tn, bona_fide_misclassified, _, _ = confusion_matrix(y_true, y_pred).ravel()
 
-    bona_fide_count = np.sum(y_true == 0)
+    bona_fide_count = tn + bona_fide_misclassified
     return bona_fide_misclassified / bona_fide_count if bona_fide_count != 0 else 0
 
 
@@ -171,4 +171,4 @@ def DCF(y_true: np.ndarray, y_pred: np.ndarray, C_miss: float, C_fa: float, P_ta
 
 
 
-## MMPMR, FMMPMR, AMPMR, APCER
+## FMR, FNMR, MMPMR, FMMPMR, AMPMR, APCER
