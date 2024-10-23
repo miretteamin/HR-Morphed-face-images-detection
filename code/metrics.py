@@ -270,28 +270,28 @@ def DCF(y_true: np.ndarray, y_pred: np.ndarray, C_miss: float, C_fa: float, P_ta
     return C_miss * P_target * frr + C_fa * (1 - P_target) * far
 
 
-def MMPMR(morphed_scores: list[list[float]], threshold: float) -> float:
-    """
-    Compute the Mated Morph Presentation Match Rate (MMPMR).
+# def MMPMR(morphed_scores: list[list[float]], threshold: float) -> float:
+#     """
+#     Compute the Mated Morph Presentation Match Rate (MMPMR).
     
-    :param morphed_scores: List of lists where each sublist contains comparison scores between a morphed image and contributing subjects.
-    :param threshold: Score threshold for a match.
-    :return: MMPMR value (float) - proportion of morphs accepted as genuine.
-    """
-    M = len(morphed_scores)  # Total number of morphed images
-    return np.mean([min(scores) > threshold for scores in morphed_scores])
+#     :param morphed_scores: List of lists where each sublist contains comparison scores between a morphed image and contributing subjects.
+#     :param threshold: Score threshold for a match.
+#     :return: MMPMR value (float) - proportion of morphs accepted as genuine.
+#     """
+#     M = len(morphed_scores)  # Total number of morphed images
+#     return np.mean([min(scores) > threshold for scores in morphed_scores])
 
 
-def FMMPMR(morphed_scores: list[list[float]], threshold: float) -> float:
-    """
-    Compute the Fully Mated Morph Presentation Match Rate (FMMPMR).
+# def FMMPMR(morphed_scores: list[list[float]], threshold: float) -> float:
+#     """
+#     Compute the Fully Mated Morph Presentation Match Rate (FMMPMR).
     
-    :param morphed_scores: List of lists containing comparison scores for multiple subjects.
-    :param threshold: Score threshold for a match.
-    :return: FMMPMR value (float) - proportion of morphs matching all subjects.
-    """
-    P = len(morphed_scores)  # Total number of morphed images
-    return np.mean([all([score > threshold for score in subject_scores]) for subject_scores in morphed_scores])
+#     :param morphed_scores: List of lists containing comparison scores for multiple subjects.
+#     :param threshold: Score threshold for a match.
+#     :return: FMMPMR value (float) - proportion of morphs matching all subjects.
+#     """
+#     P = len(morphed_scores)  # Total number of morphed images
+#     return np.mean([all([score > threshold for score in subject_scores]) for subject_scores in morphed_scores])
 
 
 def APCER(y_true: np.ndarray, y_pred: np.ndarray) -> float:
@@ -308,22 +308,22 @@ def APCER(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     return np.sum(attack_errors) / total_attacks if total_attacks > 0 else 0.0
 
 
-def AMPMR(face_scores: list[list[float]], MAD_scores: list[float], face_threshold: float, MAD_threshold: float) -> float:
-    """
-    Compute the Actual Mated Morph Presentation Match Rate (AMPMR).
+# def AMPMR(face_scores: list[list[float]], MAD_scores: list[float], face_threshold: float, MAD_threshold: float) -> float:
+#     """
+#     Compute the Actual Mated Morph Presentation Match Rate (AMPMR).
     
-    :param face_scores: List of lists containing face recognition scores for morphed images.
-    :param MAD_scores: List of MAD (Morph Attack Detection) scores for the same images.
-    :param face_threshold: Threshold for face recognition scores.
-    :param MAD_threshold: Threshold for MAD scores (to detect attacks).
-    :return: AMPMR value (float) - proportion of successful morphing attacks undetected by MAD.
-    """
-    total_images = len(face_scores)
-    successful_attacks = 0
+#     :param face_scores: List of lists containing face recognition scores for morphed images.
+#     :param MAD_scores: List of MAD (Morph Attack Detection) scores for the same images.
+#     :param face_threshold: Threshold for face recognition scores.
+#     :param MAD_threshold: Threshold for MAD scores (to detect attacks).
+#     :return: AMPMR value (float) - proportion of successful morphing attacks undetected by MAD.
+#     """
+#     total_images = len(face_scores)
+#     successful_attacks = 0
     
-    for i in range(total_images):
-        # Check if face recognition scores pass for all subjects and if the MAD system fails
-        if all([score > face_threshold for score in face_scores[i]]) and MAD_scores[i] > MAD_threshold:
-            successful_attacks += 1
+#     for i in range(total_images):
+#         # Check if face recognition scores pass for all subjects and if the MAD system fails
+#         if all([score > face_threshold for score in face_scores[i]]) and MAD_scores[i] > MAD_threshold:
+#             successful_attacks += 1
     
-    return successful_attacks / total_images if total_images > 0 else 0.0
+#     return successful_attacks / total_images if total_images > 0 else 0.0

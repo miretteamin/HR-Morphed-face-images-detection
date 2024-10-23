@@ -29,7 +29,9 @@ def count_parameters(model):
 
 def train(config):
 
-    wandb.init(project="face-morph-detection", config=config, entity="ecole-polytechnique-org", name=config["name"])
+    wandb.init(project="face-morph-detection", config=config, entity="mirettemoawad-ecole-polytechnique", name=config["name"])
+
+    print("Device: ", DEVICE)
 
 
     train_dataset = MorphDataset(dataset_dir=config["dataset_dir"], txt_paths=config["train_txt"])
@@ -44,9 +46,11 @@ def train(config):
     model = models.efficientnet_b0(weights="IMAGENET1K_V1")
     model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, 1)
     print(model)
+
+    model = model.to(DEVICE)
     print(f"Total number of parameters in the model: {count_parameters(model)}.")
 
-    criterion = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(config["pos_weight"]))  # Combines a Sigmoid layer and the BCELoss
+    criterion = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(config["pos_weight"]).to(device=DEVICE))  # Combines a Sigmoid layer and the BCELoss
     optimizer = optim.Adam(model.parameters(), lr=config["learning_rate"])
 
     for epoch in range(config["num_epochs"]):
@@ -70,6 +74,9 @@ def train(config):
         model.eval()
         with torch.no_grad():
             val_running_loss = 0.0
+            all_labels = []
+            all_outputs = []
+
             for batch_idx, (images, labels) in enumerate(tqdm.tqdm(val_loader)):
                 images, labels = images.to(DEVICE), labels.to(DEVICE)
 
@@ -77,6 +84,9 @@ def train(config):
                 loss = criterion(outputs.squeeze(), labels.float())
 
                 val_running_loss += loss.item()
+
+                all_labels.extend(labels.cpu().numpy())
+                all_outputs.extend(outputs.squeeze().cpu().numpy())
 
             torch.save({
                 'epoch': epoch + 1,  # Save the epoch number
@@ -120,7 +130,8 @@ if __name__ == "__main__":
     with open(args.config, 'r') as file:
         config = json.load(file)
 
-    os.mkdir(f"./logs/{config['name']}")
+    # os.mkdir(f"./logs/{config['name']}")
+    os.makedirs(f"./logs/{config['name']}", exist_ok=True)
 
     config["dataset_dir"] = args.datadir
     config["save_dir"] = f"./logs/{config['name']}"
