@@ -1,5 +1,5 @@
 {
-  "name": "efficientnet_b0_baseline_subset",
+  "name": "mobilenet_v2_baseline_subset_trial",
   "batch_size": 128,
   "learning_rate": 3e-4,
   "num_epochs":10,

@@ -1,0 +1,50 @@
+{
+  "os": "Windows-10-10.0.26100-SP0",
+  "python": "3.8.16",
+  "startedAt": "2024-10-23T11:14:44.261299Z",
+  "args": [
+    "train",
+    "--config",
+    "D:\\Users\\miret\\Documents\\Master\\Transverse Project\\HR-Morphed-face-images-detection\\code\\configs\\config.json",
+    "--datadir",
+    "D:\\Users\\miret\\Documents\\Master\\Transverse Project\\Crop_96_2fp_eye"
+  ],
+  "program": "./run.py",
+  "codePath": "code\\run.py",
+  "git": {
+    "remote": "https://github.com/miretteamin/HR-Morphed-face-images-detection.git",
+    "commit": "e5f7df3a53c298c5d57e272aa65ce2ac6a8a3b58"
+  },
+  "email": "mirettemoawad@gmail.com",
+  "root": "D:\\Users\\miret\\Documents\\Master\\Transverse Project\\HR-Morphed-face-images-detection\\code",
+  "host": "Mirette-Omen",
+  "username": "miret",
+  "executable": "D:\\Users\\miret\\anaconda3\\envs\\cvEnv\\python.exe",
+  "codePathLocal": "run.py",
+  "cpu_count": 6,
+  "cpu_count_logical": 12,
+  "gpu": "NVIDIA GeForce RTX 2070 with Max-Q Design",
+  "gpu_count": 1,
+  "disk": {
+    "/": {
+      "total": "1000203087872",
+      "used": "363851907072"
+    }
+  },
+  "memory": {
+    "total": "34222952448"
+  },
+  "cpu": {
+    "count": 6,
+    "countLogical": 12
+  },
+  "gpu_nvidia": [
+    {
+      "name": "NVIDIA GeForce RTX 2070 with Max-Q Design",
+      "memoryTotal": "8589934592",
+      "cudaCores": 2304,
+      "architecture": "Turing"
+    }
+  ],
+  "cudaVersion": "12.7"
+}

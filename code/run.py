@@ -7,6 +7,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, Subset
 import torchvision.models as models
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report, confusion_matrix
 
 import json
 import argparse
@@ -38,7 +39,7 @@ def train(config):
     train_dataset = MorphDataset(dataset_dir=config["dataset_dir"], txt_paths=config["train_txt"])
     val_dataset = MorphDataset(dataset_dir=config["dataset_dir"], txt_paths=config["val_txt"])
 
-    train_dataset = Subset(train_dataset, random.sample(range(0, len(train_dataset)), 10000))
+    train_dataset = Subset(train_dataset, random.sample(range(0, len(train_dataset)), 20000))
     val_dataset =  Subset(val_dataset, random.sample(range(0, len(val_dataset)), 10000))
 
     print(f"Total number of train objects: {len(train_dataset)}.")
@@ -47,12 +48,14 @@ def train(config):
     train_loader = DataLoader(train_dataset, batch_size=config["batch_size"], shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=config["batch_size"], shuffle=False)
 
-    model = models.efficientnet_b0(weights="IMAGENET1K_V1")
+    # model = models.efficientnet_b0(weights="IMAGENET1K_V1")
+    model = torch.hub.load('pytorch/vision:v0.10.0', 'mobilenet_v2', pretrained=True)
     model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, 1)
-    print(model)
+    # print(model)
 
     model = model.to(DEVICE)
     print(f"Total number of parameters in the model: {count_parameters(model)}.")
+    model.eval()
 
     criterion = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(config["pos_weight"]).to(device=DEVICE))  # Combines a Sigmoid layer and the BCELoss
     optimizer = optim.Adam(model.parameters(), lr=config["learning_rate"])
@@ -74,20 +77,31 @@ def train(config):
 
             if batch_idx % 100 == 0:
                 # Calculate metrics
-                all_labels = np.array(labels.cpu().numpy())
-                all_outputs = np.array(outputs.squeeze().detach().cpu().numpy())
+                all_labels = labels.cpu().numpy()
+                all_outputs = outputs.squeeze().detach().cpu().numpy()
 
-                f1 = F1_Score(all_labels, all_outputs)
+                preds = (torch.sigmoid(outputs) >= 0.5).int().cpu().numpy() 
+
+                acc = accuracy_score(all_labels, preds)
+                prec = precision_score(all_labels, preds)
+                rec = recall_score(all_labels, preds)
+
+                # f1 = F1_Score(all_labels, all_outputs)
+                f1 = f1_score(all_labels, all_outputs > 0.5)
+
                 macer = MACER(all_labels, all_outputs)
                 bpcer = BPCER(all_labels, all_outputs)
 
-                print("F1 Score: ", f1, "----- MACER: ", macer, "---- BPCER: ", bpcer)
+                print("F1 Score: ", f1, "----- MACER: ", macer, "---- BPCER: ", bpcer, "---- Accuracy: ", acc, "---- Precision: ", prec, "---- Recall: ", rec)
 
                 # Log metrics with wandb
                 wandb.log({
                     "epoch": epoch + 1,
                     "train_loss": running_loss / (batch_idx+1),
                     "f1_score": f1,
+                    "accuracy": acc,
+                    "precision": prec,
+                    "recall": rec,
                     "macer": macer,
                     "bpcer": bpcer
                 })
