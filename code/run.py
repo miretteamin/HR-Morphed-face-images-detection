@@ -17,6 +17,7 @@ import wandb
 
 from data import MorphDataset
 from metrics import F1_Score, MACER, BPCER
+from models import DebugNN
 
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -39,8 +40,8 @@ def train(config):
     train_dataset = MorphDataset(dataset_dir=config["dataset_dir"], txt_paths=config["train_txt"])
     val_dataset = MorphDataset(dataset_dir=config["dataset_dir"], txt_paths=config["val_txt"])
 
-    train_dataset = Subset(train_dataset, random.sample(range(0, len(train_dataset)), 20000))
-    val_dataset =  Subset(val_dataset, random.sample(range(0, len(val_dataset)), 10000))
+    train_dataset = Subset(train_dataset, random.sample(range(0, len(train_dataset)), 50000))
+    val_dataset =  Subset(val_dataset, random.sample(range(0, len(val_dataset)), 50000))
 
     print(f"Total number of train objects: {len(train_dataset)}.")
     print(f"Total number of val objects: {len(val_dataset)}.")
@@ -49,11 +50,13 @@ def train(config):
     val_loader = DataLoader(val_dataset, batch_size=config["batch_size"], shuffle=False)
 
     # model = models.efficientnet_b0(weights="IMAGENET1K_V1")
-    model = torch.hub.load('pytorch/vision:v0.10.0', 'mobilenet_v2', pretrained=True)
-    model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, 1)
-    # print(model)
+    # model = torch.hub.load('pytorch/vision:v0.10.0', 'mobilenet_v2', pretrained=True)
+    # model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, 1)
 
+    model = DebugNN()
+    print(model)
     model = model.to(DEVICE)
+
     print(f"Total number of parameters in the model: {count_parameters(model)}.")
     model.eval()
 
