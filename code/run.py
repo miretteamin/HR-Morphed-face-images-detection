@@ -81,6 +81,8 @@ def train(config):
                 macer = MACER(all_labels, all_outputs)
                 bpcer = BPCER(all_labels, all_outputs)
 
+                print("F1 Score: ", f1, "----- MACER: ", macer, "---- BPCER: ", bpcer)
+
                 # Log metrics with wandb
                 wandb.log({
                     "epoch": epoch + 1,

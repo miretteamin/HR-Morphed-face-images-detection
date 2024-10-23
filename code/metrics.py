@@ -1,39 +1,39 @@
 import numpy as np
 
 
-### Basic metrics ###
-def MAE(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    """
-    Compute the Mean Absolute Error (MAE) between y_true and y_pred.
-    """
+# ### Basic metrics ###
+# def MAE(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+#     """
+#     Compute the Mean Absolute Error (MAE) between y_true and y_pred.
+#     """
 
-    if len(y_true) != len(y_pred):
-        raise ValueError("y_true and y_pred must have the same length")
+#     if len(y_true) != len(y_pred):
+#         raise ValueError("y_true and y_pred must have the same length")
 
-    return np.mean(np.abs(y_true - y_pred))
+#     return np.mean(np.abs(y_true - y_pred))
 
 
-def CE(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    """
-    Compute the Classification Error (CE) between y_true and y_pred.
-    """
+# def CE(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+#     """
+#     Compute the Classification Error (CE) between y_true and y_pred.
+#     """
 
-    if len(y_true) != len(y_pred):
-        raise ValueError("y_true and y_pred must have the same length")
+#     if len(y_true) != len(y_pred):
+#         raise ValueError("y_true and y_pred must have the same length")
 
-    return np.mean(y_true != y_pred)
+#     return np.mean(y_true != y_pred)
 
-def FNR(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    """
-    Compute the False Negative Rate (FNR) between y_true and y_pred.
-    """
+# def FNR(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+#     """
+#     Compute the False Negative Rate (FNR) between y_true and y_pred.
+#     """
 
-    if len(y_true) != len(y_pred):
-        raise ValueError("y_true and y_pred must have the same length")
+#     if len(y_true) != len(y_pred):
+#         raise ValueError("y_true and y_pred must have the same length")
 
-    return np.mean((y_true == 1) & (y_pred == 0))
+#     return np.mean((y_true == 1) & (y_pred == 0))
 
-def TPR_FPR(y_true: np.ndarray, y_pred: np.ndarray, threshold: float) -> tuple:
+def TPR_FPR(y_true: np.ndarray, y_pred: np.ndarray, threshold: float = 0.5) -> tuple:
     """
     Calculate True Positive Rate (TPR) and False Positive Rate (FPR) for a given threshold.
     
@@ -53,7 +53,7 @@ def TPR_FPR(y_true: np.ndarray, y_pred: np.ndarray, threshold: float) -> tuple:
     return tpr, fpr
 
 
-def F1_Score(y_true: np.ndarray, y_pred: np.ndarray, threshold: float) -> float:
+def F1_Score(y_true: np.ndarray, y_pred: np.ndarray, threshold: float = 0.5) -> float:
     """
     Compute the F1 Score.
     
@@ -137,13 +137,13 @@ def MACER(y_true: np.ndarray, y_pred: np.ndarray, alpha: float = 0.5, beta: floa
     if len(y_true) != len(y_pred):
         raise ValueError("y_true and y_pred must have the same length")
 
-    MAE = MAE(y_true, y_pred)
-    CE = CE(y_true, y_pred)
-    FNR = FNR(y_true, y_pred)
+    MAE = np.mean(np.abs(y_true - y_pred))
+    CE = np.mean(y_true != y_pred)
+    FNR = np.mean((y_true == 1) & (y_pred == 0))
     return alpha * MAE + beta * CE + gamma * FNR
 
 
-def BPCER(y_true: np.ndarray, y_pred: np.ndarray, threshold: float = None) -> float:
+def BPCER(y_true: np.ndarray, y_pred: np.ndarray, threshold: float = 0.5) -> float:
     """
     Compute the Bona Fide Presentation Classification Error Rate (BPCER).
     BPCER = bona_fide_errors / total_bona_fide
