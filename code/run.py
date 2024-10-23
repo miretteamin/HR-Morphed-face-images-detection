@@ -1,4 +1,5 @@
 import os
+import random
 
 import numpy as np
 import torch
@@ -33,9 +34,12 @@ def train(config):
 
     print("Device: ", DEVICE)
 
-
+        
     train_dataset = MorphDataset(dataset_dir=config["dataset_dir"], txt_paths=config["train_txt"])
     val_dataset = MorphDataset(dataset_dir=config["dataset_dir"], txt_paths=config["val_txt"])
+
+    train_dataset = Subset(train_dataset, random.sample(range(0, len(train_dataset)), 10000))
+    val_dataset =  Subset(val_dataset, random.sample(range(0, len(val_dataset)), 10000))
 
     print(f"Total number of train objects: {len(train_dataset)}.")
     print(f"Total number of val objects: {len(val_dataset)}.")
@@ -67,6 +71,24 @@ def train(config):
             optimizer.step()
 
             running_loss += loss.item()
+
+            if batch_idx % 100 == 0:
+                # Calculate metrics
+                all_labels = np.array(labels.cpu().numpy())
+                all_outputs = np.array(outputs.squeeze().detach().cpu().numpy())
+
+                f1 = F1_Score(all_labels, all_outputs)
+                macer = MACER(all_labels, all_outputs)
+                bpcer = BPCER(all_labels, all_outputs)
+
+                # Log metrics with wandb
+                wandb.log({
+                    "epoch": epoch + 1,
+                    "train_loss": running_loss / (batch_idx+1),
+                    "f1_score": f1,
+                    "macer": macer,
+                    "bpcer": bpcer
+                })
             
         train_loss = running_loss / len(train_loader)
         print(f'Epoch [{epoch + 1}/{config["num_epochs"]}], Train loss: {running_loss/len(train_dataset):.10f}')
@@ -97,6 +119,7 @@ def train(config):
         
         val_loss = val_running_loss / len(val_loader)
         print(f'Epoch [{epoch + 1}/{config["num_epochs"]}], Val loss: {val_running_loss/len(val_dataset):.3f}')
+    
 
         # Calculate metrics
         all_labels = np.array(all_labels)
