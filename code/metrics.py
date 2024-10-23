@@ -4,35 +4,26 @@ from sklearn.metrics import confusion_matrix
 
 # ### Basic metrics ###
 def FDR(y_true: np.ndarray, y_pred: np.ndarray, threshold: float) -> float:
-    """
-    Compute the False Discovery Rate --> FDR = FP / (FP + TP)
-    """
+
     y_pred_binary = (y_pred >= threshold).astype(int)
+
+    _, fp, _, tp = confusion_matrix(y_true, y_pred_binary).ravel()
     
-    false_positives = np.sum(np.logical_and(y_pred_binary == 1, y_true == 0))
-    true_positives = np.sum(np.logical_and(y_pred_binary == 1, y_true == 1))
-    
-    return false_positives / (false_positives + true_positives) if (false_positives + true_positives) > 0 else 0.0
+    return fp / (fp + tp) if (fp + tp) > 0 else 0.0
 
 
 def NPV(y_true: np.ndarray, y_pred: np.ndarray, threshold: float) -> float:
-    """
-    Compute the Negative Predictive Value --> NPV = TN / (TN + FN)
-    """
 
     y_pred_binary = (y_pred >= threshold).astype(int)
     
-    true_negatives = np.sum(np.logical_and(y_pred_binary == 0, y_true == 0))
-    false_negatives = np.sum(np.logical_and(y_pred_binary == 0, y_true == 1))
+    _, _, fn, tn = confusion_matrix(y_true, y_pred_binary).ravel()
+    tn/(tn+fn) if (tn+fn) > 0 else 0.0
     
-    return true_negatives / (true_negatives + false_negatives) if (true_negatives + false_negatives) > 0 else 0.0
+    return tn/(tn+fn) if (tn+fn) > 0 else 0.0
 
 
 
 def AUC(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    """
-    Compute the Area Under the ROC Curve
-    """
     if len(y_true) != len(y_pred):
         raise ValueError("y_true and y_pred must have the same length")
     
@@ -53,7 +44,6 @@ def AUC(y_true: np.ndarray, y_pred: np.ndarray) -> float:
 
 
 ### Task Based metrics ###
-
 def MACER(y_true: np.ndarray, y_pred: np.ndarray, threshold: float = 0.5) -> float:
     """    
     MACER is calculated as the number of false negatives divided by the total number of morphed images in the dataset.
@@ -88,8 +78,7 @@ def BPCER(y_true: np.ndarray, y_pred: np.ndarray, threshold: float = 0.5) -> flo
 
 def FAR(y_true: np.ndarray, y_pred: np.ndarray, threshold: float = None) -> float:
     """
-    Compute the False Acceptance Rate
-    FAR = impostor_errors / total_morphs
+    Compute the False Acceptance Rate --> impostor_errors / total_morphs
     where:
     - impostor_errors = number of morph samples incorrectly classified as bona fides
     - total_morphs = total number of morph samples (impostors)
@@ -110,8 +99,7 @@ def FAR(y_true: np.ndarray, y_pred: np.ndarray, threshold: float = None) -> floa
 
 def FRR(y_true: np.ndarray, y_pred: np.ndarray, threshold: float = None) -> float:
     """
-    Compute the False Rejection Rate (FRR).
-    FRR = bona_fide_errors / total_bona_fide
+    Compute the False Rejection Rate --> bona_fide_errors / total_bona_fide
     where:
     - bona_fide_errors = number of bona fide samples incorrectly classified as morphs
     - total_bona_fide = total number of bona fide samples
@@ -132,24 +120,24 @@ def FRR(y_true: np.ndarray, y_pred: np.ndarray, threshold: float = None) -> floa
 
 def EER(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     """
-    Compute the Equal Error Rate (EER).
-    The EER is the point where FAR and FRR are equal.
+    Compute the Equal Error Rate
+    The EER is the point where FAR and FRR are almost equal (the closest)
     """
     if len(y_true) != len(y_pred):
         raise ValueError("y_true and y_pred must have the same length")
     
     thresholds = np.unique(y_pred)  
-    min_difference = float('inf')  
+    min_diff = float('inf')  
     eer = None
     
     for threshold in thresholds:
         far = FAR(y_true, y_pred, threshold)
         frr = FRR(y_true, y_pred, threshold)
         
-        # difference is minimized here
-        difference = abs(far - frr)
-        if difference < min_difference:
-            min_difference = difference
+        # diff is minimized here
+        diff = abs(far - frr)
+        if diff < min_diff:
+            min_diff = diff
             eer = (far + frr) / 2  
     
     return eer
@@ -160,15 +148,12 @@ def MCC(y_true: np.ndarray, y_pred: np.ndarray, threshold: float) -> float:
     """
     y_pred_binary = (y_pred >= threshold).astype(int)
     
-    tp = np.sum(np.logical_and(y_pred_binary == 1, y_true == 1))
-    tn = np.sum(np.logical_and(y_pred_binary == 0, y_true == 0))
-    fp = np.sum(np.logical_and(y_pred_binary == 1, y_true == 0))
-    fn = np.sum(np.logical_and(y_pred_binary == 0, y_true == 1))
+    tp, fp, fn, tn = confusion_matrix(y_true, y_pred_binary).ravel()
     
     numerator = tp * tn - fp * fn
-    denominator = np.sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
+    denom = np.sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
     
-    return numerator / denominator if denominator > 0 else 0.0
+    return numerator / denom if denom > 0 else 0.0
 
 
 def DCF(y_true: np.ndarray, y_pred: np.ndarray, C_miss: float, C_fa: float, P_target: float, threshold: float) -> float:
@@ -177,22 +162,13 @@ def DCF(y_true: np.ndarray, y_pred: np.ndarray, C_miss: float, C_fa: float, P_ta
     
     C_miss: Cost of a missed detection (failed to detect morph)
     C_fa: Cost of a false alarm (falsely classifying bona fide as morph)
-    P_target: Probability of a morph attack (target probability)
+    P_target: Probs of a morph attack (target probs)
     """
     far = FAR(y_true, y_pred, threshold)
     frr = FRR(y_true, y_pred, threshold)
     return C_miss * P_target * frr + C_fa * (1 - P_target) * far
 
 
-def APCER(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    """
-    Compute the Attack Presentation Classification Error Rate
-    """
-    attack_errors = np.logical_and(y_pred == 1, y_true == 0)
-    total_attacks = np.sum(y_true == 0)
-    
-    return np.sum(attack_errors) / total_attacks if total_attacks > 0 else 0.0
 
 
-
-## MMPMR, FMMPMR, AMPMR
+## MMPMR, FMMPMR, AMPMR, APCER
