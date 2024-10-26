@@ -156,7 +156,7 @@ def train(config):
             macer_val = MACER(all_labels, all_outputs)
             bpcer_val = BPCER(all_labels, all_outputs)
 
-            print("F1 Score Val: ", f1, "----- MACER Val: ", macer, "---- BPCER Val: ", bpcer, "---- Accuracy Val: ", acc, "---- Precision Val: ", prec, "---- Recall Val: ", rec)
+            print("F1 Score Val: ", f1_val, "----- MACER Val: ", macer_val, "---- BPCER Val: ", bpcer_val, "---- Accuracy Val: ", acc_val, "---- Precision Val: ", prec_val, "---- Recall Val: ", rec_val)
 
             # Log metrics with wandb
             wandb.log({
