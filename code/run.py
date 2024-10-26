@@ -16,7 +16,7 @@ import wandb
 
 
 from data import MorphDataset
-from metrics import F1_Score, MACER, BPCER
+from metrics import MACER, BPCER
 from models import DebugNN
 
 
@@ -46,8 +46,8 @@ def train(config):
     print(f"Total number of train objects: {len(train_dataset)}.")
     print(f"Total number of val objects: {len(val_dataset)}.")
 
-    train_loader = DataLoader(train_dataset, batch_size=config["batch_size"], shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=config["batch_size"], shuffle=False)
+    train_loader = DataLoader(train_dataset, batch_size=config["batch_size"], shuffle=True, num_workers=6)
+    val_loader = DataLoader(val_dataset, batch_size=config["batch_size"], shuffle=False, num_workers=6)
 
     # model = models.efficientnet_b0(weights="IMAGENET1K_V1")
     # model = torch.hub.load('pytorch/vision:v0.10.0', 'mobilenet_v2', pretrained=True)
@@ -86,11 +86,11 @@ def train(config):
                 preds = (torch.sigmoid(outputs) >= 0.5).int().cpu().numpy() 
 
                 acc = accuracy_score(all_labels, preds)
-                prec = precision_score(all_labels, preds)
-                rec = recall_score(all_labels, preds)
+                prec = precision_score(all_labels, preds, zero_division=0)
+                rec = recall_score(all_labels, preds, zero_division=0)
 
                 # f1 = F1_Score(all_labels, all_outputs)
-                f1 = f1_score(all_labels, all_outputs > 0.5)
+                f1 = f1_score(all_labels, all_outputs > 0.5, zero_division=0)
 
                 macer = MACER(all_labels, all_outputs)
                 bpcer = BPCER(all_labels, all_outputs)
@@ -139,27 +139,38 @@ def train(config):
         val_loss = val_running_loss / len(val_loader)
         print(f'Epoch [{epoch + 1}/{config["num_epochs"]}], Val loss: {val_running_loss/len(val_dataset):.3f}')
     
+        if batch_idx % 100 == 0:
+            # Calculate metrics
+            all_labels = labels.cpu().numpy()
+            all_outputs = outputs.squeeze().detach().cpu().numpy()
 
-        # Calculate metrics
-        all_labels = np.array(all_labels)
-        all_outputs = np.array(all_outputs)
+            preds = (torch.sigmoid(outputs) >= 0.5).int().cpu().numpy() 
 
-        f1 = F1_Score(all_labels, all_outputs)
-        macer = MACER(all_labels, all_outputs)
-        bpcer = BPCER(all_labels, all_outputs)
+            acc_val = accuracy_score(all_labels, preds)
+            prec_val = precision_score(all_labels, preds, zero_division=0)
+            rec_val = recall_score(all_labels, preds, zero_division=0)
 
-        # Log metrics with wandb
-        wandb.log({
+            # f1 = F1_Score(all_labels, all_outputs)
+            f1_val = f1_score(all_labels, all_outputs > 0.5, zero_division=0)
+
+            macer_val = MACER(all_labels, all_outputs)
+            bpcer_val = BPCER(all_labels, all_outputs)
+
+            print("F1 Score Val: ", f1, "----- MACER Val: ", macer, "---- BPCER Val: ", bpcer, "---- Accuracy Val: ", acc, "---- Precision Val: ", prec, "---- Recall Val: ", rec)
+
+            # Log metrics with wandb
+            wandb.log({
             "epoch": epoch + 1,
-            "train_loss": train_loss,
+            "train_loss_val": train_loss,
             "val_loss": val_loss,
-            "accuracy_val": acc,
-            "precision_val": prec,
-            "recall_val": rec,
-            "f1_score_val": f1,
-            "macer_val": macer,
-            "bpcer_val": bpcer
+            "accuracy_val": acc_val,
+            "precision_val": prec_val,
+            "recall_val": rec_val,
+            "f1_score_val": f1_val,
+            "macer_val": macer_val,
+            "bpcer_val": bpcer_val
         })
+        
 
     wandb.finish()
 

@@ -22,25 +22,7 @@ def NPV(y_true: np.ndarray, y_pred: np.ndarray, threshold: float) -> float:
     return tn/(tn+fn) if (tn+fn) > 0 else 0.0
 
 
-
-def AUC(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    if len(y_true) != len(y_pred):
-        raise ValueError("y_true and y_pred must have the same length")
-    
-    fpr_vals, tpr_vals = [], []
-    thresholds = np.unique(y_pred)
-    
-    for threshold in thresholds:
-        tpr, fpr = confusion_matrix(y_true, y_pred >= threshold, normalize='true').ravel()
-        tpr_vals.append(tpr)
-        fpr_vals.append(fpr)
-    
-    sorted_idx = np.argsort(fpr_vals)
-    fpr_vals = np.array(fpr_vals)[sorted_idx]
-    tpr_vals = np.array(tpr_vals)[sorted_idx]
-    
-    return np.trapz(tpr_vals, fpr_vals)
-
+# roc_auc_score
 
 
 ### Task Based metrics ###
@@ -54,7 +36,7 @@ def MACER(y_true: np.ndarray, y_pred: np.ndarray, threshold: float = 0.5) -> flo
     
     y_pred = (y_pred > threshold).astype(int)
 
-    _, _, morph_misclassified, tp = confusion_matrix.ravel()
+    _, _, morph_misclassified, tp = confusion_matrix(y_true, y_pred).ravel()
     morph_count = morph_misclassified + tp
     return morph_misclassified / morph_count if morph_count != 0 else 0
 
