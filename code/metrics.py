@@ -51,12 +51,28 @@ def BPCER(y_true: np.ndarray, y_pred: np.ndarray, threshold: float = 0.5) -> flo
     if len(y_true) != len(y_pred):
         raise ValueError("y_true and y_pred must have the same length")
     
-    y_pred = (y_pred > threshold).astype(int)
+    y_pred = (y_pred >= threshold).astype(int)
+    
     tn, bona_fide_misclassified, _, _ = confusion_matrix(y_true, y_pred).ravel()
 
     bona_fide_count = tn + bona_fide_misclassified
+    
     return bona_fide_misclassified / bona_fide_count if bona_fide_count != 0 else 0
 
+
+def MACER_at_BPCER(y_true: np.ndarray, y_pred: np.ndarray, target_bpcer: float = 0.01) -> float:
+    """
+    Calculate MACER at the threshold corresponding to a target BPCER = 1%
+    """
+    ypred_scores = np.sort(np.unique(y_pred))
+    threshold = ypred_scores[-1]
+    for threshold_i in ypred_scores:
+        bpcer = BPCER(y_true, y_pred, threshold_i)
+        if bpcer >= target_bpcer:
+            threshold = threshold_i
+            break
+    
+    return MACER(y_true, y_pred, threshold)
 
 def FAR(y_true: np.ndarray, y_pred: np.ndarray, threshold: float = None) -> float:
     """

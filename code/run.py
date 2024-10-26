@@ -16,14 +16,14 @@ import wandb
 
 
 from data import MorphDataset
-from metrics import MACER, BPCER
+from metrics import MACER, BPCER, MACER_at_BPCER
 from models import DebugNN
 
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-wandb.login(key='b720adf497c3c34f4e18be46e08aaba5ff31321b')
-
+# wandb.login(key='b720adf497c3c34f4e18be46e08aaba5ff31321b')
+wandb.login()
 
 def count_parameters(model):
     total_params = sum(p.numel() for p in model.parameters())
@@ -46,15 +46,15 @@ def train(config):
     print(f"Total number of train objects: {len(train_dataset)}.")
     print(f"Total number of val objects: {len(val_dataset)}.")
 
-    train_loader = DataLoader(train_dataset, batch_size=config["batch_size"], shuffle=True, num_workers=6)
-    val_loader = DataLoader(val_dataset, batch_size=config["batch_size"], shuffle=False, num_workers=6)
+    train_loader = DataLoader(train_dataset, batch_size=config["batch_size"], shuffle=True, num_workers=8)
+    val_loader = DataLoader(val_dataset, batch_size=config["batch_size"], shuffle=False, num_workers=8)
 
-    # model = models.efficientnet_b0(weights="IMAGENET1K_V1")
+    model = models.efficientnet_b0(weights="IMAGENET1K_V1")
     # model = torch.hub.load('pytorch/vision:v0.10.0', 'mobilenet_v2', pretrained=True)
-    # model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, 1)
+    model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, 1)
 
-    model = DebugNN()
-    print(model)
+    # model = DebugNN()
+    # print(model)
     model = model.to(DEVICE)
 
     print(f"Total number of parameters in the model: {count_parameters(model)}.")
@@ -95,9 +95,10 @@ def train(config):
                 macer = MACER(all_labels, all_outputs)
                 bpcer = BPCER(all_labels, all_outputs)
 
-                print("F1 Score: ", f1, "----- MACER: ", macer, "---- BPCER: ", bpcer, "---- Accuracy: ", acc, "---- Precision: ", prec, "---- Recall: ", rec)
+                macer_at_bpcer = MACER_at_BPCER(all_labels, all_outputs)
 
-                # Log metrics with wandb
+                print("F1 Score: ", f1, "----- MACER: ", macer, "---- BPCER: ", bpcer, "--- MACER@BPCER=1%: ", macer_at_bpcer, "---- Accuracy: ", acc, "---- Precision: ", prec, "---- Recall: ", rec)
+
                 wandb.log({
                     "epoch": epoch + 1,
                     "train_loss": running_loss / (batch_idx+1),
@@ -106,7 +107,8 @@ def train(config):
                     "precision": prec,
                     "recall": rec,
                     "macer": macer,
-                    "bpcer": bpcer
+                    "bpcer": bpcer,
+                    "macer_at_bpcer": macer_at_bpcer
                 })
             
         train_loss = running_loss / len(train_loader)
@@ -156,9 +158,10 @@ def train(config):
             macer_val = MACER(all_labels, all_outputs)
             bpcer_val = BPCER(all_labels, all_outputs)
 
-            print("F1 Score Val: ", f1_val, "----- MACER Val: ", macer_val, "---- BPCER Val: ", bpcer_val, "---- Accuracy Val: ", acc_val, "---- Precision Val: ", prec_val, "---- Recall Val: ", rec_val)
+            macer_at_bpcer_val = MACER_at_BPCER(all_labels, all_outputs)
 
-            # Log metrics with wandb
+            print("F1 Score Val: ", f1_val, "----- MACER Val: ", macer_val, "---- BPCER Val: ", bpcer_val, "--- MACER@BPCER=1%_val: ", macer_at_bpcer_val, "---- Accuracy Val: ", acc_val, "---- Precision Val: ", prec_val, "---- Recall Val: ", rec_val)
+
             wandb.log({
             "epoch": epoch + 1,
             "train_loss_val": train_loss,
@@ -168,7 +171,8 @@ def train(config):
             "recall_val": rec_val,
             "f1_score_val": f1_val,
             "macer_val": macer_val,
-            "bpcer_val": bpcer_val
+            "bpcer_val": bpcer_val,
+            "macer_at_bpcer_val": macer_at_bpcer_val
         })
         
 

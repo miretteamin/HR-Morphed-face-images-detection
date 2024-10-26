@@ -399,3 +399,7 @@ FodyWeavers.xsd
 
 ./code/datasets
 ./code/logs
+
+# WandB & logs
+code/logs/
+wandb/
