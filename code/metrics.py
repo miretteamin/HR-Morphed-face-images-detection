@@ -39,7 +39,7 @@ def MACER(y_true: np.ndarray, y_pred: np.ndarray, threshold: float = 0.5) -> flo
     _, _, morph_misclassified, tp = confusion_matrix(y_true, y_pred).ravel()
     morph_count = morph_misclassified + tp
     return morph_misclassified / morph_count if morph_count != 0 else 0
-
+  
 
 def BPCER(y_true: np.ndarray, y_pred: np.ndarray, threshold: float = 0.5) -> float:
     """
