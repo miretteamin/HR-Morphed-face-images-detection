@@ -15,7 +15,7 @@ import tqdm
 import wandb
 
 
-from data import MorphDataset
+from data import MorphDataset, MorphDatasetMemmap
 from metrics import MACER, BPCER, MACER_at_BPCER
 from models import DebugNN
 
@@ -36,18 +36,22 @@ def train(config):
 
     print("Device: ", DEVICE)
 
-        
-    train_dataset = MorphDataset(dataset_dir=config["dataset_dir"], txt_paths=config["train_txt"])
-    val_dataset = MorphDataset(dataset_dir=config["dataset_dir"], txt_paths=config["val_txt"])
+    if config["is_memmap"]:
+        train_dataset = MorphDatasetMemmap(config["train_memmap"], config["train_labels"])
+        val_dataset = MorphDatasetMemmap(config["val_memmap"], config["val_labels"])
 
-    train_dataset = Subset(train_dataset, random.sample(range(0, len(train_dataset)), 50000))
-    val_dataset =  Subset(val_dataset, random.sample(range(0, len(val_dataset)), 50000))
+    else:
+        train_dataset = MorphDataset(dataset_dir=config["dataset_dir"], txt_paths=config["train_txt"])
+        val_dataset = MorphDataset(dataset_dir=config["dataset_dir"], txt_paths=config["val_txt"])
+
+        train_dataset = Subset(train_dataset, random.sample(range(0, len(train_dataset)), 50000))
+        val_dataset = Subset(val_dataset, random.sample(range(0, len(val_dataset)), 50000))
 
     print(f"Total number of train objects: {len(train_dataset)}.")
     print(f"Total number of val objects: {len(val_dataset)}.")
 
-    train_loader = DataLoader(train_dataset, batch_size=config["batch_size"], shuffle=True, num_workers=8)
-    val_loader = DataLoader(val_dataset, batch_size=config["batch_size"], shuffle=False, num_workers=8)
+    train_loader = DataLoader(train_dataset, batch_size=config["batch_size"], shuffle=True, num_workers=0)
+    val_loader = DataLoader(val_dataset, batch_size=config["batch_size"], shuffle=False, num_workers=0)
 
     model = models.efficientnet_b0(weights="IMAGENET1K_V1")
     # model = torch.hub.load('pytorch/vision:v0.10.0', 'mobilenet_v2', pretrained=True)
@@ -181,6 +185,7 @@ def train(config):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("mode", type=str, help="train / test mode", default="train")
+    parser.add_argument("--memmap", type=bool, help="memmap enable", default=False)
     parser.add_argument("--config", type=str, help="Path to the training config")
     parser.add_argument("--datadir", type=str, help="Path to the training config")
 
@@ -195,6 +200,7 @@ if __name__ == "__main__":
 
     config["dataset_dir"] = args.datadir
     config["save_dir"] = f"./logs/{config['name']}"
+    config["is_memmap"] = args.memmap
     train(config)
 
 

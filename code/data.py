@@ -3,8 +3,11 @@ import torch
 from torch.utils.data import Dataset
 import os
 from PIL import Image
+import numpy as np
 
 from torchvision import transforms
+
+IMAGE_SHAPE = (64, 96, 3)
 
 # Define the transformation pipeline
 trainval_transform = transforms.Compose([
@@ -62,3 +65,21 @@ class MorphDataset(Dataset):
 
         return image, label
 
+
+class MorphDatasetMemmap(Dataset):
+    def __init__(self, memmap_path, labels_path, transform=trainval_transform):
+        self.transform = transform
+        self.labels = np.load(labels_path)
+        self.data = np.memmap(memmap_path, dtype=np.uint8, mode='r', shape=(len(self.labels), *IMAGE_SHAPE))
+
+    def __len__(self):
+        return len(self.labels)
+
+    def __getitem__(self, idx):
+        image = np.array(self.data[idx])
+        label = self.labels[idx]
+
+        if self.transform:
+            image = self.transform(image)
+
+        return image, label
