@@ -5,7 +5,7 @@ import torch.nn.functional as F
 class DebugNN(nn.Module):
     def __init__(self):
         super(DebugNN, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels=1, out_channels=16, kernel_size=3, stride=1,
+        self.conv1 = nn.Conv2d(in_channels=3, out_channels=16, kernel_size=3, stride=1,
                                padding=1)  # Output: 16 x 64 x 96
         self.conv2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3, stride=1,
                                padding=1)  # Output: 32 x 32 x 48

@@ -398,3 +398,8 @@ FodyWeavers.xsd
 *.sln.iml
 
 ./code/datasets
+./code/logs
+
+# WandB & logs
+code/logs/
+wandb/
