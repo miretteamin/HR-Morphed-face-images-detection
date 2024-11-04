@@ -22,8 +22,8 @@ from models import DebugNN
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-# wandb.login(key='b720adf497c3c34f4e18be46e08aaba5ff31321b')
-wandb.login()
+wandb.login(key='b720adf497c3c34f4e18be46e08aaba5ff31321b')
+# wandb.login()
 
 def count_parameters(model):
     total_params = sum(p.numel() for p in model.parameters())
