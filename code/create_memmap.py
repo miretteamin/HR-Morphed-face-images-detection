@@ -5,11 +5,11 @@ from PIL import Image
 import tqdm
 
 
-DIR_PATH = "/Users/igorgogarev/Documents/m2/idemia/data/Crop_96_2fp_eye"
+DIR_PATH = "C:\\Users\\zocca\\Desktop\\Ecole_M2\\Transverse_Project\\data\\Crop_96_2fp_eye"
 CONFIG_PATH = "./configs/config.json"
 MODE = "val_txt"  # "train_txt" or "val_txt"
-MEMMAP_PATH = "/Users/igorgogarev/Documents/m2/idemia/data/val_memmap.dat"
-LABELS_PATH = "/Users/igorgogarev/Documents/m2/idemia/data/val_labels.npy"
+MEMMAP_PATH = "C:\\Users\\zocca\\Desktop\\Ecole_M2\\Transverse_Project\\data\\val_memmap.dat"
+LABELS_PATH = "C:\\Users\\zocca\\Desktop\\Ecole_M2\\Transverse_Project\\data\\val_labels.npy"
 
 if __name__ == "__main__":
     with open(CONFIG_PATH, 'r') as file:
