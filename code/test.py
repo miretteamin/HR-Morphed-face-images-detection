@@ -97,7 +97,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=str, required=True, help="Path to the config file with model and dataset settings")
     parser.add_argument("--datadir", type=str, required=True, help="Path to the dataset directory")
-    parser.add_argument("--run_id", type=str, required=True, help="wandb run ID for the model to test")
     parser.add_argument("--epochs", type=int, nargs='+', required=True, help="List of epochs to test (e.g., 1 5 10)")
 
     args = parser.parse_args()
