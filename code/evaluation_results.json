@@ -1,0 +1,131 @@
+{
+    "models": [
+        {
+            "model_name": "efficientnet_b0",
+            "checkpoint": [
+                {
+                    "model_checkpoint": "model_epoch_9.pth",
+                    "val_datasets": [
+                        {
+                            "dataset_name": "E01_Global_val_lab.txt",
+                            "metrics": {
+                                "accuracy": 0.9583065563235275,
+                                "precision": 0.937691112336458,
+                                "recall": 0.9818134103136071,
+                                "f1_score": 0.9592451572375421,
+                                "macer": 0.018186589686392862,
+                                "bpcer": 0.06517749462534739,
+                                "macer_at_bpcer": 0.08626164545335258
+                            },
+                            "num_samples": 76247
+                        },
+                        {
+                            "dataset_name": "E04_Local_Match_val_lab.txt",
+                            "metrics": {
+                                "accuracy": 0.9416763938253309,
+                                "precision": 0.9356458710846492,
+                                "recall": 0.9485369374097887,
+                                "f1_score": 0.9420473056623444,
+                                "macer": 0.05146306259021126,
+                                "bpcer": 0.06517749462534739,
+                                "macer_at_bpcer": 0.183545466474216
+                            },
+                            "num_samples": 76247
+                        },
+                        {
+                            "dataset_name": "E05_DST_val_lab.txt",
+                            "metrics": {
+                                "accuracy": 0.9564966490484872,
+                                "precision": 0.9374748490945674,
+                                "recall": 0.978191838341425,
+                                "f1_score": 0.9574006292942914,
+                                "macer": 0.02180816165857499,
+                                "bpcer": 0.06517749462534739,
+                                "macer_at_bpcer": 0.09673271224248786
+                            },
+                            "num_samples": 76247
+                        },
+                        {
+                            "dataset_name": "E06_Twente_val_lab.txt",
+                            "metrics": {
+                                "accuracy": 0.9575327553870971,
+                                "precision": 0.9375988353121313,
+                                "recall": 0.9802650570791235,
+                                "f1_score": 0.958457353997742,
+                                "macer": 0.019734942920876526,
+                                "bpcer": 0.06517749462534739,
+                                "macer_at_bpcer": 0.10127279884529589
+                            },
+                            "num_samples": 76247
+                        },
+                        {
+                            "dataset_name": "E07_Lincoln_val_lab.txt",
+                            "metrics": {
+                                "accuracy": 0.9499127834537753,
+                                "precision": 0.9366753273218198,
+                                "recall": 0.9650177142107335,
+                                "f1_score": 0.9506353166242261,
+                                "macer": 0.0349822857892665,
+                                "bpcer": 0.06517749462534739,
+                                "macer_at_bpcer": 0.1436032016795696
+                            },
+                            "num_samples": 76247
+                        },
+                        {
+                            "dataset_name": "E09_UNIBO_v2_val_lab.txt",
+                            "metrics": {
+                                "accuracy": 0.963092707759322,
+                                "precision": 0.938212998633031,
+                                "recall": 0.9914119130160731,
+                                "f1_score": 0.96407912043008,
+                                "macer": 0.008588086983926883,
+                                "bpcer": 0.06517749462534739,
+                                "macer_at_bpcer": 0.058698392688307593
+                            },
+                            "num_samples": 76218
+                        },
+                        {
+                            "dataset_name": "ManualMorphs_01_val_lab.txt",
+                            "metrics": {
+                                "accuracy": 0.9275654412121801,
+                                "precision": 0.5056671306422748,
+                                "recall": 0.8365131578947368,
+                                "f1_score": 0.6303135456686082,
+                                "macer": 0.16348684210526315,
+                                "bpcer": 0.06517749462534739,
+                                "macer_at_bpcer": 0.3536184210526316
+                            },
+                            "num_samples": 41182
+                        },
+                        {
+                            "dataset_name": "FEI_val_lab.txt",
+                            "metrics": {
+                                "accuracy": 0.9906463008109856,
+                                "precision": 0.9946298619824341,
+                                "recall": 0.9959294436906377,
+                                "f1_score": 0.9952792286058658,
+                                "macer": 0.004070556309362279,
+                                "bpcer": 0.535,
+                                "macer_at_bpcer": 0.2898135584702749
+                            },
+                            "num_samples": 20099
+                        },
+                        {
+                            "dataset_name": "facelab_london_val_lab.txt",
+                            "metrics": {
+                                "accuracy": 0.8494150034411563,
+                                "precision": 0.9907879585458135,
+                                "recall": 0.8529953264410141,
+                                "f1_score": 0.9167427701674277,
+                                "macer": 0.14700467355898597,
+                                "bpcer": 0.27450980392156865,
+                                "macer_at_bpcer": 0.503753009488741
+                            },
+                            "num_samples": 7265
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

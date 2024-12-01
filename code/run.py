@@ -22,7 +22,7 @@ from models import DebugNN
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-wandb.login(key='b720adf497c3c34f4e18be46e08aaba5ff31321b')
+wandb.login(key='6b2c400d545f1a22b720d687700b682f3f433b55')
 # wandb.login()
 
 def count_parameters(model):
@@ -40,14 +40,14 @@ def train(config):
     train_dataset = MorphDataset(dataset_dir=config["dataset_dir"], txt_paths=config["train_txt"])
     val_dataset = MorphDataset(dataset_dir=config["dataset_dir"], txt_paths=config["val_txt"])
 
-    train_dataset = Subset(train_dataset, random.sample(range(0, len(train_dataset)), 50000))
-    val_dataset =  Subset(val_dataset, random.sample(range(0, len(val_dataset)), 50000))
+    train_dataset = Subset(train_dataset, random.sample(range(0, len(train_dataset)), 200000))
+    val_dataset =  Subset(val_dataset, random.sample(range(0, len(val_dataset)), 200000))
 
     print(f"Total number of train objects: {len(train_dataset)}.")
     print(f"Total number of val objects: {len(val_dataset)}.")
 
-    train_loader = DataLoader(train_dataset, batch_size=config["batch_size"], shuffle=True, num_workers=8)
-    val_loader = DataLoader(val_dataset, batch_size=config["batch_size"], shuffle=False, num_workers=8)
+    train_loader = DataLoader(train_dataset, batch_size=config["batch_size"], shuffle=True, num_workers=0)
+    val_loader = DataLoader(val_dataset, batch_size=config["batch_size"], shuffle=False, num_workers=0)
 
     model = models.efficientnet_b0(weights="IMAGENET1K_V1")
     # model = torch.hub.load('pytorch/vision:v0.10.0', 'mobilenet_v2', pretrained=True)
