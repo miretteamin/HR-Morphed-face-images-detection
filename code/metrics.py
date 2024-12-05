@@ -36,8 +36,11 @@ def MACER(y_true: np.ndarray, y_pred: np.ndarray, threshold: float = 0.5) -> flo
     
     y_pred = (y_pred > threshold).astype(int)
 
-    _, _, morph_misclassified, tp = confusion_matrix(y_true, y_pred).ravel()
-    morph_count = morph_misclassified + tp
+    # _, _, morph_misclassified, tp = confusion_matrix(y_true, y_pred).ravel()
+    # morph_count = morph_misclassified + tp
+
+    morph_count = np.sum(y_true == 1)
+    morph_misclassified =  np.sum(np.logical_and((y_true == 1), (y_pred == 0)))
     return morph_misclassified / morph_count if morph_count != 0 else 0
   
 
@@ -53,9 +56,11 @@ def BPCER(y_true: np.ndarray, y_pred: np.ndarray, threshold: float = 0.5) -> flo
     
     y_pred = (y_pred >= threshold).astype(int)
     
-    tn, bona_fide_misclassified, _, _ = confusion_matrix(y_true, y_pred).ravel()
-
-    bona_fide_count = tn + bona_fide_misclassified
+    # tn, bona_fide_misclassified, _, _ = confusion_matrix(y_true, y_pred).ravel()
+    # bona_fide_count = tn + bona_fide_misclassified
+    
+    bona_fide_count = np.sum(y_true == 0)
+    bona_fide_misclassified = np.sum(np.logical_and((y_true == 0), (y_pred == 1)))
     
     return bona_fide_misclassified / bona_fide_count if bona_fide_count != 0 else 0
 
@@ -68,7 +73,7 @@ def MACER_at_BPCER(y_true: np.ndarray, y_pred: np.ndarray, target_bpcer: float =
     threshold = ypred_scores[-1]
     for threshold_i in ypred_scores:
         bpcer = BPCER(y_true, y_pred, threshold_i)
-        if bpcer >= target_bpcer:
+        if bpcer <= target_bpcer:
             threshold = threshold_i
             break
     

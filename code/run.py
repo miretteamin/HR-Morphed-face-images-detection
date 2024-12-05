@@ -17,7 +17,7 @@ import wandb
 
 from data import MorphDataset, MorphDatasetMemmap
 from metrics import MACER, BPCER, MACER_at_BPCER
-from models import DebugNN
+from models import DebugNN, S2DCNN
 
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -53,11 +53,19 @@ def train(config):
     train_loader = DataLoader(train_dataset, batch_size=config["batch_size"], shuffle=True, num_workers=0)
     val_loader = DataLoader(val_dataset, batch_size=config["batch_size"], shuffle=False, num_workers=0)
 
-    model = models.efficientnet_b0(weights="IMAGENET1K_V1")
-    # model = torch.hub.load('pytorch/vision:v0.10.0', 'mobilenet_v2', pretrained=True)
-    model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, 1)
+    # model = models.efficientnet_b0(weights="IMAGENET1K_V1")
+    # model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, 1)
+
+    # model = models.resnet18(weights='DEFAULT')
+    # model.fc = nn.Linear(in_features=model.fc.in_features, out_features=1)
+
+    # model = models.mobilenet_v3_small(weights="MobileNet_V3_Small_Weights.DEFAULT")
+    # model.classifier[3] = torch.nn.Linear(model.classifier[3].in_features, 1)
 
     # model = DebugNN()
+    
+    model = S2DCNN()
+
     # print(model)
     model = model.to(DEVICE)
 
@@ -70,7 +78,7 @@ def train(config):
     for epoch in range(config["num_epochs"]):
         running_loss = 0.0
         model.train()
-        for batch_idx, (images, labels) in enumerate(tqdm.tqdm(train_loader)):
+        for batch_idx, (images, labels) in enumerate(train_loader):
             images, labels = images.to(DEVICE), labels.to(DEVICE)
 
             outputs = model(images)
@@ -124,7 +132,7 @@ def train(config):
             all_labels = []
             all_outputs = []
 
-            for batch_idx, (images, labels) in enumerate(tqdm.tqdm(val_loader)):
+            for batch_idx, (images, labels) in enumerate(val_loader):
                 images, labels = images.to(DEVICE), labels.to(DEVICE)
 
                 outputs = model(images)
@@ -135,17 +143,10 @@ def train(config):
                 all_labels.extend(labels.cpu().numpy())
                 all_outputs.extend(outputs.squeeze().cpu().numpy())
 
-            torch.save({
-                'epoch': epoch + 1,  # Save the epoch number
-                'model_state_dict': model.state_dict(),  # Save model state
-                'optimizer_state_dict': optimizer.state_dict(),  # Save optimizer state (optional)
-                'val_loss': val_running_loss / len(val_dataset),  # Save current validation loss
-            }, os.path.join(config["save_dir"], f"model_epoch_{epoch+1}.pth"))
         
-        val_loss = val_running_loss / len(val_loader)
-        print(f'Epoch [{epoch + 1}/{config["num_epochs"]}], Val loss: {val_running_loss/len(val_dataset):.3f}')
-    
-        if batch_idx % 100 == 0:
+            val_loss = val_running_loss / len(val_loader)
+            print(f'Epoch [{epoch + 1}/{config["num_epochs"]}], Val loss: {val_running_loss/len(val_dataset):.3f}')
+        
             # Calculate metrics
             all_labels = labels.cpu().numpy()
             all_outputs = outputs.squeeze().detach().cpu().numpy()
@@ -165,6 +166,14 @@ def train(config):
             macer_at_bpcer_val = MACER_at_BPCER(all_labels, all_outputs)
 
             print("F1 Score Val: ", f1_val, "----- MACER Val: ", macer_val, "---- BPCER Val: ", bpcer_val, "--- MACER@BPCER=1%_val: ", macer_at_bpcer_val, "---- Accuracy Val: ", acc_val, "---- Precision Val: ", prec_val, "---- Recall Val: ", rec_val)
+            
+            torch.save({
+                'epoch': epoch + 1,  # Save the epoch number
+                'model_state_dict': model.state_dict(),  # Save model state
+                'optimizer_state_dict': optimizer.state_dict(),  # Save optimizer state (optional)
+                'val_loss': val_running_loss / len(val_dataset),  # Save current validation loss
+                'macer_at_bpcer': macer_at_bpcer_val
+            }, os.path.join(config["save_dir"], f"model_epoch_{epoch+1}.pth"))
 
             wandb.log({
             "epoch": epoch + 1,
@@ -177,7 +186,7 @@ def train(config):
             "macer_val": macer_val,
             "bpcer_val": bpcer_val,
             "macer_at_bpcer_val": macer_at_bpcer_val
-        })
+            })
         
 
     wandb.finish()
