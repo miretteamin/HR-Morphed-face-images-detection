@@ -8,6 +8,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, Subset
 import torchvision.models as models
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report, confusion_matrix
+from torch.optim.lr_scheduler import StepLR, ReduceLROnPlateau, CosineAnnealingLR
 
 import json
 import argparse
@@ -15,7 +16,7 @@ import tqdm
 import wandb
 
 
-from data import MorphDataset, MorphDatasetMemmap
+from data import get_transforms, MorphDataset, MorphDatasetMemmap
 from metrics import MACER, BPCER, MACER_at_BPCER
 from models import DebugNN, S2DCNN
 
@@ -36,13 +37,16 @@ def train(config):
 
     print("Device: ", DEVICE)
 
+    trains_transform = get_transforms(is_train=True)
+    val_transform = get_transforms(is_train=False)
+
     if config["is_memmap"]:
-        train_dataset = MorphDatasetMemmap(config["train_memmap"], config["train_labels"])
-        val_dataset = MorphDatasetMemmap(config["val_memmap"], config["val_labels"])
+        train_dataset = MorphDatasetMemmap(config["train_memmap"], config["train_labels"], transform=trains_transform)
+        val_dataset = MorphDatasetMemmap(config["val_memmap"], config["val_labels"], transform=val_transform)
 
     else:
-        train_dataset = MorphDataset(dataset_dir=config["dataset_dir"], txt_paths=config["train_txt"])
-        val_dataset = MorphDataset(dataset_dir=config["dataset_dir"], txt_paths=config["val_txt"])
+        train_dataset = MorphDataset(dataset_dir=config["dataset_dir"], txt_paths=config["train_txt"], transform=trains_transform)
+        val_dataset = MorphDataset(dataset_dir=config["dataset_dir"], txt_paths=config["val_txt"],  transform=val_transform)
 
         train_dataset = Subset(train_dataset, random.sample(range(0, len(train_dataset)), 50000))
         val_dataset = Subset(val_dataset, random.sample(range(0, len(val_dataset)), 50000))
@@ -74,6 +78,10 @@ def train(config):
 
     criterion = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(config["pos_weight"]).to(device=DEVICE))  # Combines a Sigmoid layer and the BCELoss
     optimizer = optim.Adam(model.parameters(), lr=config["learning_rate"])
+
+    # lr_scheduler = CosineAnnealingLR(optimizer, T_max=20)
+    # lr_scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=5, verbose=True)
+    lr_scheduler = StepLR(optimizer, step_size=5, gamma=0.1)
 
     for epoch in range(config["num_epochs"]):
         running_loss = 0.0
@@ -120,11 +128,15 @@ def train(config):
                     "recall": rec,
                     "macer": macer,
                     "bpcer": bpcer,
-                    "macer_at_bpcer": macer_at_bpcer
+                    "macer_at_bpcer": macer_at_bpcer,
+                    "lr": optimizer.param_groups[0]['lr']
                 })
             
         train_loss = running_loss / len(train_loader)
         print(f'Epoch [{epoch + 1}/{config["num_epochs"]}], Train loss: {running_loss/len(train_dataset):.10f}')
+        
+        # lr_scheduler.step(val_loss) # plateau scheduler
+        lr_scheduler.step()
 
         model.eval()
         with torch.no_grad():
@@ -148,17 +160,21 @@ def train(config):
             print(f'Epoch [{epoch + 1}/{config["num_epochs"]}], Val loss: {val_running_loss/len(val_dataset):.3f}')
         
             # Calculate metrics
-            all_labels = labels.cpu().numpy()
-            all_outputs = outputs.squeeze().detach().cpu().numpy()
+            # all_labels = labels.cpu().numpy()
+            # all_outputs = outputs.squeeze().detach().cpu().numpy()
+            
+            all_labels = np.array(all_labels)
+            all_outputs = np.array(all_outputs)
 
-            preds = (torch.sigmoid(outputs) >= 0.5).int().cpu().numpy() 
+            # preds = (torch.sigmoid(outputs) >= 0.5).int().cpu().numpy() 
+            preds = (torch.sigmoid(torch.tensor(all_outputs, dtype=torch.float)) >= 0.5).int().cpu().numpy() 
 
             acc_val = accuracy_score(all_labels, preds)
             prec_val = precision_score(all_labels, preds, zero_division=0)
             rec_val = recall_score(all_labels, preds, zero_division=0)
 
             # f1 = F1_Score(all_labels, all_outputs)
-            f1_val = f1_score(all_labels, all_outputs > 0.5, zero_division=0)
+            f1_val = f1_score(all_labels, preds, zero_division=0)
 
             macer_val = MACER(all_labels, all_outputs)
             bpcer_val = BPCER(all_labels, all_outputs)
