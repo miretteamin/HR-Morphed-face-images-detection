@@ -1,4 +1,3 @@
-
 import os
 import argparse
 import torch
@@ -10,21 +9,35 @@ from metrics import MACER, BPCER, MACER_at_BPCER
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import json
 import numpy as np
+from models import DebugNN, S2DCNN
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+def load_model(checkpoint_path, model_name="efficientnet_b0"):
+    """
+    Load the model and weights from the checkpoint for the specified model architecture.
+    """
+    print(f"Loading model '{model_name}' from checkpoint: {checkpoint_path}")
 
-def load_model(checkpoint_path):
-    """
-    Load the model and weights from the checkpoint.
-    """
-    print(f"Loading model from checkpoint: {checkpoint_path}")
-    model = models.efficientnet_b0(weights=None)
-    model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, 1)
-    model.load_state_dict(torch.load(checkpoint_path, map_location=DEVICE)['model_state_dict'])
+    if model_name == "efficientnet_b0":
+        model = models.efficientnet_b0(weights=None)
+        model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, 1)
+    elif model_name == "resnet18":
+        model = models.resnet18(weights=None)
+        model.fc = torch.nn.Linear(model.fc.in_features, 1)
+    elif model_name == "mobilenetv3s":
+        model = models.mobilenet_v3_small(weights=None)
+        model.classifier[3] = torch.nn.Linear(model.classifier[3].in_features, 1)
+    elif model_name == "DebugNN":
+        model = DebugNN()
+    elif model_name == "S2DCNN":
+        model = S2DCNN()
+    else:
+        raise ValueError(f"Unsupported model_name '{model_name}'. Please add it to the script.")
+
+    model.load_state_dict(torch.load(checkpoint_path, map_location=DEVICE)['model_state_dict'], strict=True)
     model = model.to(DEVICE)
     return model
-
 
 def evaluate(model, val_loader):
     """
@@ -43,7 +56,6 @@ def evaluate(model, val_loader):
             all_outputs.extend(torch.sigmoid(outputs).cpu().numpy())
 
     return all_labels, all_outputs
-
 
 def compute_metrics(labels, outputs, threshold=0.5):
     """
@@ -73,35 +85,93 @@ def compute_metrics(labels, outputs, threshold=0.5):
         "macer_at_bpcer": macer_at_bpcer
     }
 
-
 def main(args):
     with open(args.config, 'r') as file:
         config = json.load(file)
+
+    results_file = "evaluation_results.json"
+    if os.path.exists(results_file):
+        with open(results_file, 'r') as f:
+            all_results = json.load(f)
+    else:
+        all_results = {"models": []}
+
+    print(f"Using device: {DEVICE}")
+    print(f"Model: {args.model_name}")
+    print(f"Checkpoint: {args.checkpoint}")
+    print(f"Batch size: {args.batch_size}\n")
 
     val_dataset = MorphDataset(
         dataset_dir=args.datadir,
         txt_paths=config["val_txt"],
         transform=trainval_transform
     )
-    val_loader = DataLoader(val_dataset, batch_size=64, shuffle=False, num_workers=4)
+    val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=4)
 
-    print(f"Loaded validation dataset with {len(val_dataset)} samples.")
+    num_samples = len(val_dataset)
+    print(f"Loaded validation dataset with {num_samples} samples.")
 
-    model = load_model(args.checkpoint)
-
+    model = load_model(args.checkpoint, model_name=args.model_name)
     labels, outputs = evaluate(model, val_loader)
 
     metrics = compute_metrics(labels, outputs)
+
+    model_entry = next((m for m in all_results["models"] if m["model_name"] == args.model_name), None)
+
+    if model_entry:
+        checkpoint_entry = next(
+            (c for c in model_entry["checkpoint"] if c["model_checkpoint"] == os.path.basename(args.checkpoint)),
+            None
+        )
+        if checkpoint_entry:
+            checkpoint_entry["val_datasets"].append({
+                "dataset_name": "total",
+                "metrics": metrics,
+                "num_samples": num_samples
+            })
+        else:
+            model_entry["checkpoint"].append({
+                "model_checkpoint": os.path.basename(args.checkpoint),
+                "val_datasets": [
+                    {
+                        "dataset_name": "total",
+                        "metrics": metrics,
+                        "num_samples": num_samples
+                    }
+                ]
+            })
+    else:
+        all_results["models"].append({
+            "model_name": args.model_name,
+            "checkpoint": [
+                {
+                    "model_checkpoint": os.path.basename(args.checkpoint),
+                    "val_datasets": [
+                        {
+                            "dataset_name": "total",
+                            "metrics": metrics,
+                            "num_samples": num_samples
+                        }
+                    ]
+                }
+            ]
+        })
+
+    with open(results_file, "w") as f:
+        json.dump(all_results, f, indent=4)
+
     print("\nEvaluation Metrics:")
     for key, value in metrics.items():
         print(f"{key}: {value:.4f}")
-
+    print(f"\nAll results saved to {results_file}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=str, required=True, help="Path to the training config file.")
     parser.add_argument("--datadir", type=str, required=True, help="Path to the dataset directory.")
     parser.add_argument("--checkpoint", type=str, required=True, help="Path to the model checkpoint.")
+    parser.add_argument("--model_name", type=str, default="efficientnet_b0", help="Model architecture (default: efficientnet_b0).")
+    parser.add_argument("--batch_size", type=int, default=128, help="Batch size for evaluation (default: 128).")
 
     args = parser.parse_args()
 
