@@ -40,16 +40,16 @@ def get_transforms(is_train = True):
     if is_train:
         return transforms.Compose([
             transforms.RandomHorizontalFlip(p = 0.3),
-            transforms.RandomRotation(degrees = 10, p = 0.3),
+            transforms.RandomApply([transforms.RandomRotation(degrees=10)], p=0.3),
             transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.05),
-            DownscaleBilinear(),
+            # DownscaleBilinear(),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
             # transforms.Normalize(mean=[0.5], std=[0.5])
             ])
     else:
         return transforms.Compose([
-            DownscaleBilinear(),                         
+            # DownscaleBilinear(),                         
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
             # transforms.Normalize(mean=[0.5], std=[0.5])])
@@ -94,8 +94,8 @@ class MorphDataset(Dataset):
 
 
 class MorphDatasetMemmap(Dataset):
-    def __init__(self, memmap_path, labels_path, transform=trainval_transform):
-        self.transform = transform
+    def __init__(self, memmap_path, labels_path, transform=None, is_train=True):
+        self.transform = transform if transform is not None else get_transforms(is_train)
         self.labels = np.load(labels_path)
         self.data = np.memmap(memmap_path, dtype=np.uint8, mode='r', shape=(len(self.labels), *IMAGE_SHAPE))
 
@@ -104,6 +104,7 @@ class MorphDatasetMemmap(Dataset):
 
     def __getitem__(self, idx):
         image = np.array(self.data[idx])
+        image = Image.fromarray(image)
         label = self.labels[idx]
 
         if self.transform:
