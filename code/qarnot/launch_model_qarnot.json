@@ -1,0 +1,15 @@
+{
+  "QARNOT_REPO": "qarnotlab/blank-images",
+  "QARNOT_TAG": "qarnot_cuda-12.3.1-devel-ubuntu22.04",
+  "QARNOT_PROFILE": "docker-nvidia-bi-a6000-network-ssh",
+  "QARNOT_TASK_NAME": "train all",
+  "DOCKER_ACCOUNT": "miretteamin",
+  "DOCKER_PASSWORD": "dckr_pat_MuKCFvAZCZiQ1E9DRljMSqdDXG8",
+  "DOCKER_SRV": "https://registry-1.docker.io",
+
+  "DOCKER_SSH": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMVsL2+esKcz0C2q2fsZRiPkMJjx+ECHnw+dSH6DLUyO mirette.moawad@polytechnique.edu",
+
+  "QARNOT_CPU_MIN": 16,
+  "QARNOT_TOKEN": "d6ef7c49b6f54cb8fd2547de73152f8149944a9bfdba34075e7e7b44c5dcdc325e12be90ffa04396fce341058b7b45cac3eb9aff786c0e0349a3425beac51d4e",
+  "QARNOT_SSH_KEY": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMVsL2+esKcz0C2q2fsZRiPkMJjx+ECHnw+dSH6DLUyO mirette.moawad@polytechnique.edu"
+}
