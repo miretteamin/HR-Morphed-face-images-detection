@@ -1,13 +1,13 @@
 {
-  "name": "resnet18_memmap_12percent-train_20percent-val_augment_no-downscale",
+  "name": "resnet18_memmap_full-train_augment_no-downscale",
   "batch_size": 512,
   "learning_rate": 3e-4,
-  "num_epochs": 12,
+  "num_epochs": 100,
   "image_height": 64,
   "image_width": 96,
   "pos_weight": 0.1633,
-  "train_memmap": "C:\\Users\\zocca\\Desktop\\Ecole_M2\\Transverse_Project\\data\\train_memmap.dat",
-  "train_labels": "C:\\Users\\zocca\\Desktop\\Ecole_M2\\Transverse_Project\\data\\train_labels.npy",
-  "val_memmap": "C:\\Users\\zocca\\Desktop\\Ecole_M2\\Transverse_Project\\data\\val_memmap.dat",
-  "val_labels": "C:\\Users\\zocca\\Desktop\\Ecole_M2\\Transverse_Project\\data\\val_labels.npy"
+  "train_memmap": "/job/train_memmap.dat",
+  "train_labels": "/job/train_labels.npy",
+  "val_memmap": "/job/val_memmap.dat",
+  "val_labels": "/job/val_labels.npy"
 }
