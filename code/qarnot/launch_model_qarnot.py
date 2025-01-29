@@ -49,7 +49,7 @@ task.constants['DOCKER_CMD'] = f'/bin/bash -c " \
     python3 -m pip install --upgrade pip && \
     pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121 && \
     pip install -r /job/code/requirements.txt && \
-    python3 /job/code/run.py train --config /job/code/configs/config_memmap.json --datadir /job/ --memmap True"'
+    python3 -u /job/code/run.py train --config /job/code/configs/config_memmap.json --datadir /job/ --memmap True"'
 
 # task.constants['DOCKER_CMD'] = config["DOCKER_CMD"].replace("{DOCKER_SSH}", task.constants["DOCKER_SSH"])
 
