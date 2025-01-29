@@ -57,11 +57,11 @@ def train(config):
     train_loader = DataLoader(train_dataset, batch_size=config["batch_size"], shuffle=True, num_workers=0)
     val_loader = DataLoader(val_dataset, batch_size=config["batch_size"], shuffle=False, num_workers=0)
 
-    model = models.efficientnet_b0(weights="IMAGENET1K_V1")
-    model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, 1)
+    # model = models.efficientnet_b0(weights="IMAGENET1K_V1")
+    # model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, 1)
 
-    # model = models.resnet18(weights='DEFAULT')
-    # model.fc = nn.Linear(in_features=model.fc.in_features, out_features=1)
+    model = models.resnet18(weights='DEFAULT')
+    model.fc = nn.Linear(in_features=model.fc.in_features, out_features=1)
 
     # model = models.mobilenet_v3_small(weights="MobileNet_V3_Small_Weights.DEFAULT")
     # model.classifier[3] = torch.nn.Linear(model.classifier[3].in_features, 1)
@@ -224,8 +224,6 @@ if __name__ == "__main__":
     os.makedirs(f"./logs/{config['name']}", exist_ok=True)
 
     config["dataset_dir"] = args.datadir
-    config["save_dir"] = f"./logs/{config['name']}"
+    config["save_dir"] = f"/job/output/logs/{config['name']}"
     config["is_memmap"] = args.memmap
     train(config)
-
-
