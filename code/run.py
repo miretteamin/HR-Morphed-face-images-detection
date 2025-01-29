@@ -23,7 +23,6 @@ from models import DebugNN, S2DCNN
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-wandb.login(key='b720adf497c3c34f4e18be46e08aaba5ff31321b')
 # wandb.login()
 
 def count_parameters(model):
@@ -33,9 +32,12 @@ def count_parameters(model):
 
 def train(config):
 
+    if "wandb_key" in config:
+        wandb.login(key=config["wandb_key"])
+
     wandb.init(project="face-morph-detection", config=config, entity="mirettemoawad-ecole-polytechnique", name=config["name"])
 
-    print("Device: ", DEVICE)
+    print("#### Device ####: ", DEVICE)
 
     trains_transform = get_transforms(is_train=True)
     val_transform = get_transforms(is_train=False)
@@ -80,8 +82,8 @@ def train(config):
     optimizer = optim.Adam(model.parameters(), lr=config["learning_rate"])
 
     # lr_scheduler = CosineAnnealingLR(optimizer, T_max=20)
-    # lr_scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=5, verbose=True)
-    lr_scheduler = StepLR(optimizer, step_size=5, gamma=0.1)
+    lr_scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=5, verbose=True)
+    # lr_scheduler = StepLR(optimizer, step_size=5, gamma=0.1)
 
     for epoch in range(config["num_epochs"]):
         running_loss = 0.0
@@ -135,8 +137,8 @@ def train(config):
         train_loss = running_loss / len(train_loader)
         print(f'Epoch [{epoch + 1}/{config["num_epochs"]}], Train loss: {running_loss/len(train_dataset):.10f}')
         
-        # lr_scheduler.step(val_loss) # plateau scheduler
-        lr_scheduler.step()
+        lr_scheduler.step(train_loss) # plateau scheduler
+        # lr_scheduler.step()
 
         model.eval()
         with torch.no_grad():
@@ -183,13 +185,18 @@ def train(config):
 
             print("F1 Score Val: ", f1_val, "----- MACER Val: ", macer_val, "---- BPCER Val: ", bpcer_val, "--- MACER@BPCER=1%_val: ", macer_at_bpcer_val, "---- Accuracy Val: ", acc_val, "---- Precision Val: ", prec_val, "---- Recall Val: ", rec_val)
             
-            torch.save({
-                'epoch': epoch + 1,  # Save the epoch number
-                'model_state_dict': model.state_dict(),  # Save model state
-                'optimizer_state_dict': optimizer.state_dict(),  # Save optimizer state (optional)
-                'val_loss': val_running_loss / len(val_dataset),  # Save current validation loss
-                'macer_at_bpcer': macer_at_bpcer_val
-            }, os.path.join(config["save_dir"], f"model_epoch_{epoch+1}.pth"))
+            try:
+                os.makedirs(config["save_dir"], exist_ok=True)
+                
+                torch.save({
+                    'epoch': epoch + 1,
+                    'model_state_dict': model.state_dict(),
+                    'optimizer_state_dict': optimizer.state_dict(),
+                    'train_loss': running_loss / len(train_loader)
+                }, os.path.join(config["save_dir"], f"model_epoch_{epoch+1}.pth"))
+            except Exception as e:
+                print(f"❌ Error saving model checkpoint: {e}")
+                continue
 
             wandb.log({
             "epoch": epoch + 1,
@@ -209,21 +216,20 @@ def train(config):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("mode", type=str, help="train / test mode", default="train")
-    parser.add_argument("--memmap", type=bool, help="memmap enable", default=False)
-    parser.add_argument("--config", type=str, help="Path to the training config")
-    parser.add_argument("--datadir", type=str, help="Path to the training config")
+    parser.add_argument("mode", type=str, nargs='?', default="train", help="train / test mode")
+    parser.add_argument("--memmap", action='store_true', help="Enable memmap for dataset")
+    parser.add_argument("--config", type=str, required=True, help="Path to training config")
+    parser.add_argument("--datadir", type=str, help="Path to dataset directory")
 
-    # Parse arguments
     args = parser.parse_args()
 
     with open(args.config, 'r') as file:
         config = json.load(file)
 
-    # os.mkdir(f"./logs/{config['name']}")
     os.makedirs(f"./logs/{config['name']}", exist_ok=True)
 
     config["dataset_dir"] = args.datadir
     config["save_dir"] = f"/job/output/logs/{config['name']}"
     config["is_memmap"] = args.memmap
+
     train(config)

@@ -6,14 +6,11 @@ import json
 from dotenv import load_dotenv
 from qarnot.scheduling_type import OnDemandScheduling
 
-# Load environment variables
 load_dotenv()
 
-# Load configuration from JSON
-with open("config.json", "r") as config_file:
+with open("code\qarnot\launch_model_qarnot.json", "r") as config_file:
     config = json.load(config_file)
 
-# Task settings
 PROFILE = config["QARNOT_PROFILE"]
 TASK_NAME = config["QARNOT_TASK_NAME"]
 
@@ -32,9 +29,8 @@ task.constants["QARNOT_SECRET__DOCKER_REGISTRY_PASSWORD"] = config["DOCKER_PASSW
 task.constants['DOCKER_SSH'] = config["DOCKER_SSH"]
 
 # Set hardware requirements
-task.resources_constraints = {"cpu_count": {"min": config["CPU_MIN"]},}
+task.resources_constraints = {"cpu_count": {"min": config["QARNOT_CPU_MIN"]},}
 
-# Set Docker command
 task.constants['DOCKER_CMD'] = f'/bin/bash -c " \
     echo \"🔑 Ensuring SSH key exists inside the container...\" && \
     mkdir -p /root/.ssh && chmod 700 /root/.ssh && \
