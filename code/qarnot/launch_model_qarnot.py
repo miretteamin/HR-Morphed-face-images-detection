@@ -31,21 +31,19 @@ task.constants['DOCKER_SSH'] = config["DOCKER_SSH"]
 # Set hardware requirements
 task.resources_constraints = {"cpu_count": {"min": config["QARNOT_CPU_MIN"]},}
 
-task.constants['DOCKER_CMD'] = f'/bin/bash -c " \
-    echo \"🔑 Ensuring SSH key exists inside the container...\" && \
-    mkdir -p /root/.ssh && chmod 700 /root/.ssh && \
-    echo \"{task.constants["DOCKER_SSH"]}\" > /root/.ssh/authorized_keys && \
-    chmod 600 /root/.ssh/authorized_keys && \
-    echo \"✅ SSH Key added to authorized_keys!\" && \
-    set_ssh && sleep infinity | tee master.logs & \
+
+task.constants['DOCKER_CMD'] = f'/bin/bash -c "set_ssh && \
+    mkdir -p /job/output/logs && \
     nvidia-smi && \
-    apt-get update -y && \
-    apt-get install apt-utils -y && \
-    apt-get install -y python3 python3-pip && \
+    apt-get update -y && apt-get install -y apt-utils python3 python3-pip && \
     python3 -m pip install --upgrade pip && \
     pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121 && \
     pip install -r /job/code/requirements.txt && \
-    python3 -u /job/code/run.py train --config /job/code/configs/config_memmap.json --datadir /job/ --memmap True"'
+    python3 -u /job/code/run.py train --config /job/code/configs/config_memmap.json --datadir /job/ --memmap True && \
+    cp -r /job/output/* /qarnot-output/ && \
+    sleep 10"'
+
+## there is a problem with echo
 
 # task.constants['DOCKER_CMD'] = config["DOCKER_CMD"].replace("{DOCKER_SSH}", task.constants["DOCKER_SSH"])
 
