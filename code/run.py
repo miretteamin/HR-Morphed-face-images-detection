@@ -216,10 +216,10 @@ def train(config):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("mode", type=str, nargs='?', default="train", help="train / test mode")
-    parser.add_argument("--memmap", action='store_true', help="Enable memmap for dataset")
-    parser.add_argument("--config", type=str, required=True, help="Path to training config")
-    parser.add_argument("--datadir", type=str, help="Path to dataset directory")
+    parser.add_argument("mode", type=str, help="train / test mode", default="train")
+    parser.add_argument("--memmap", type=bool, help="memmap enable", default=False)
+    parser.add_argument("--config", type=str, help="Path to the training config")
+    parser.add_argument("--datadir", type=str, help="Path to the training config")
 
     args = parser.parse_args()
 

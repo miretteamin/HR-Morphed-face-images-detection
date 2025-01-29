@@ -35,7 +35,7 @@ task.resources_constraints = {"cpu_count": {"min": config["QARNOT_CPU_MIN"]},}
 task.constants['DOCKER_CMD'] = f'/bin/bash -c "set_ssh && \
     mkdir -p /job/output/logs && \
     nvidia-smi && \
-    apt-get update -y && apt-get install -y apt-utils python3 python3-pip && \
+    apt-get update -y && apt-get install -y apt-utils python3 python3-pip openssh-client && \
     python3 -m pip install --upgrade pip && \
     pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121 && \
     pip install -r /job/code/requirements.txt && \
@@ -43,7 +43,7 @@ task.constants['DOCKER_CMD'] = f'/bin/bash -c "set_ssh && \
     cp -r /job/output/* /qarnot-output/ && \
     sleep 10"'
 
-## there is a problem with echo
+## there is a problem with echo, it assigns completed for the task without even being executed
 
 # task.constants['DOCKER_CMD'] = config["DOCKER_CMD"].replace("{DOCKER_SSH}", task.constants["DOCKER_SSH"])
 
