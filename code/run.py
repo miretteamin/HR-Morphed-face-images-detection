@@ -35,7 +35,11 @@ def train(config):
     if "wandb_key" in config:
         wandb.login(key=config["wandb_key"])
 
-    wandb.init(project="face-morph-detection", config=config, entity="mirettemoawad-ecole-polytechnique", name=config["name"])
+    if config["weights_path"] and config["wandb_run_id"]:        
+        wandb.init(project="face-morph-detection", config=config, entity="mirettemoawad-ecole-polytechnique", id = config["wandb_run_id"], resume = "allow")
+
+    else:
+        wandb.init(project="face-morph-detection", config=config, entity="mirettemoawad-ecole-polytechnique", name=config["name"])
 
     print("#### Device ####: ", DEVICE)
 
@@ -62,7 +66,9 @@ def train(config):
     # model = models.efficientnet_b0(weights="IMAGENET1K_V1")
     # model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, 1)
 
-    model = models.resnet18(weights='DEFAULT')
+    # model = models.resnet18(weights='DEFAULT')
+    # model.fc = nn.Linear(in_features=model.fc.in_features, out_features=1)
+    model = models.resnet34(weights='DEFAULT')
     model.fc = nn.Linear(in_features=model.fc.in_features, out_features=1)
 
     # model = models.mobilenet_v3_small(weights="MobileNet_V3_Small_Weights.DEFAULT")
@@ -73,10 +79,20 @@ def train(config):
     # model = S2DCNN()
 
     # print(model)
-    model = model.to(DEVICE)
+
+    if config["weights_path"]:
+        checkpoint = torch.load(config["weights_path"])
+        model.load_state_dict(checkpoint['model_state_dict'])
+        print(f"Loaded model weights from {config['weights_path']}.")
+        start_epoch = config['begin_epoch']
+    else:
+        start_epoch = 0
 
     print(f"Total number of parameters in the model: {count_parameters(model)}.")
+
+    model = model.to(DEVICE)
     model.eval()
+
 
     criterion = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(config["pos_weight"]).to(device=DEVICE))  # Combines a Sigmoid layer and the BCELoss
     optimizer = optim.Adam(model.parameters(), lr=config["learning_rate"])
@@ -85,7 +101,10 @@ def train(config):
     lr_scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=5, verbose=True)
     # lr_scheduler = StepLR(optimizer, step_size=5, gamma=0.1)
 
-    for epoch in range(config["num_epochs"]):
+    print("Starting epoch: ", start_epoch)
+
+    for epoch in range(start_epoch, config["num_epochs"]):
+        
         running_loss = 0.0
         model.train()
         for batch_idx, (images, labels) in enumerate(tqdm.tqdm(train_loader)):
@@ -185,18 +204,17 @@ def train(config):
 
             print("F1 Score Val: ", f1_val, "----- MACER Val: ", macer_val, "---- BPCER Val: ", bpcer_val, "--- MACER@BPCER=1%_val: ", macer_at_bpcer_val, "---- Accuracy Val: ", acc_val, "---- Precision Val: ", prec_val, "---- Recall Val: ", rec_val)
             
+            checkpoint_path = os.path.join(config["save_dir"], f"model_epoch_{epoch+1}.pth")
             try:
-                os.makedirs(config["save_dir"], exist_ok=True)
-                
                 torch.save({
                     'epoch': epoch + 1,
                     'model_state_dict': model.state_dict(),
                     'optimizer_state_dict': optimizer.state_dict(),
                     'train_loss': running_loss / len(train_loader)
-                }, os.path.join(config["save_dir"], f"model_epoch_{epoch+1}.pth"))
+                }, checkpoint_path)
+                print(f"✅ Model checkpoint saved: {checkpoint_path}")
             except Exception as e:
-                print(f"❌ Error saving model checkpoint: {e}")
-                continue
+                print(f"❌ Error saving model checkpoint at {checkpoint_path}: {e}")
 
             wandb.log({
             "epoch": epoch + 1,
@@ -210,7 +228,7 @@ def train(config):
             "bpcer_val": bpcer_val,
             "macer_at_bpcer_val": macer_at_bpcer_val
             })
-        
+           
 
     wandb.finish()
 
@@ -220,16 +238,23 @@ if __name__ == "__main__":
     parser.add_argument("--memmap", type=bool, help="memmap enable", default=False)
     parser.add_argument("--config", type=str, help="Path to the training config")
     parser.add_argument("--datadir", type=str, help="Path to the training config")
+    parser.add_argument("--weights", type=str, help="Path to the last weights file")
+    parser.add_argument("--wandb_run_id", type=str, help="Wandb Run ID to resume", default=None)
+
 
     args = parser.parse_args()
 
     with open(args.config, 'r') as file:
         config = json.load(file)
 
-    os.makedirs(f"./logs/{config['name']}", exist_ok=True)
 
     config["dataset_dir"] = args.datadir
     config["save_dir"] = f"/job/output/logs/{config['name']}"
     config["is_memmap"] = args.memmap
+    config["weights_path"] = args.weights
+    config["wandb_run_id"] = args.wandb_run_id
+
+    os.makedirs(config["save_dir"], exist_ok=True)
+
 
     train(config)
