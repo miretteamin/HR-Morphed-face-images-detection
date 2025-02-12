@@ -8,11 +8,12 @@ from qarnot.scheduling_type import OnDemandScheduling
 
 load_dotenv()
 
-with open("code\qarnot\launch_model_qarnot.json", "r") as config_file:
+with open("qarnot\launch_model_qarnot.json", "r") as config_file:
     config = json.load(config_file)
 
 PROFILE = config["QARNOT_PROFILE"]
 TASK_NAME = config["QARNOT_TASK_NAME"]
+
 
 print(f"Creating task {TASK_NAME} with profile {PROFILE}")
 conn = qarnot.connection.Connection(client_token=config.get("QARNOT_TOKEN"))
@@ -31,7 +32,19 @@ task.constants['DOCKER_SSH'] = config["DOCKER_SSH"]
 # Set hardware requirements
 task.resources_constraints = {"cpu_count": {"min": config["QARNOT_CPU_MIN"]},}
 
+## RUN 1
+# task.constants['DOCKER_CMD'] = f'/bin/bash -c "set_ssh && \
+#     mkdir -p /job/output/logs && \
+#     nvidia-smi && \
+#     apt-get update -y && apt-get install -y apt-utils python3 python3-pip openssh-client && \
+#     python3 -m pip install --upgrade pip && \
+#     pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121 && \
+#     pip install -r /job/code/requirements.txt && \
+#     python3 -u /job/code/run.py train --config /job/code/configs/config_memmap.json --datadir /job/ --memmap True --weights /job/output/logs/resnet34_memmap_full-train_augment_no-downscale_lr_plateau/model_epoch_10.pth --wandb_run_id i3eq22bw && \
+#     cp -r /job/output/* /qarnot-output/ && \
+#     sleep 10"'
 
+# ## RUN 2
 task.constants['DOCKER_CMD'] = f'/bin/bash -c "set_ssh && \
     mkdir -p /job/output/logs && \
     nvidia-smi && \
@@ -39,9 +52,27 @@ task.constants['DOCKER_CMD'] = f'/bin/bash -c "set_ssh && \
     python3 -m pip install --upgrade pip && \
     pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121 && \
     pip install -r /job/code/requirements.txt && \
-    python3 -u /job/code/run.py train --config /job/code/configs/config_memmap.json --datadir /job/ --memmap True && \
+    python3 -u /job/code/run_2.py train --config /job/code/configs/config_memmap_2.json --datadir /job/ --memmap True --weights /job/output/logs/efficientnet_b0_memmap_full-train_augment_no-downscale_lr_plateau/model_epoch_10.pth --wandb_run_id 5e9fipbl && \
     cp -r /job/output/* /qarnot-output/ && \
     sleep 10"'
+
+# task.constants['DOCKER_CMD'] = f'/bin/bash -c "set_ssh && \
+#     mkdir -p /job/output/logs && \
+#     echo \'🔍 Listing contents of /job/ to check if model is uploaded:\' && \
+#     ls -R /job/ && \
+#     echo \'🔍 Listing contents of /job/output/logs before execution:\' && \
+#     ls -R /job/output/logs && \
+#     echo \'🔍 Checking if model file exists:\' && \
+#     if [ -f /job/output/logs/resnet34_memmap_full-train_augment_no-downscale_lr_plateau/model_epoch_10.pth ]; then \
+#         echo \'✅ Model checkpoint found!\'; \
+#     else \
+#         echo \'❌ Model checkpoint NOT found! Check if it was uploaded correctly.\'; \
+#     fi && \
+#     echo \'🚀 Proceeding with Training Script Execution...\' && \
+#     python3 -u /job/code/run.py train --config /job/code/configs/config_memmap.json --datadir /job/ --memmap True --weights /job/output/logs/resnet34_memmap_full-train_augment_no-downscale_lr_plateau/model_epoch_10.pth --wandb_run_id i3eq22bw && \
+#     cp -r /job/output/* /qarnot-output/ && \
+#     sleep 10"'
+
 
 ## there is a problem with echo, it assigns completed for the task without even being executed
 
@@ -49,10 +80,12 @@ task.constants['DOCKER_CMD'] = f'/bin/bash -c "set_ssh && \
 
 
 # Retrieve buckets
-input_bucket = conn.retrieve_bucket(config["INPUT_BUCKET"])
+input_bucket1 = conn.retrieve_bucket(config["INPUT_BUCKET"])
+input_bucket2= conn.retrieve_bucket(config["OUTPUT_BUCKET"])
 output_bucket = conn.retrieve_bucket(config["OUTPUT_BUCKET"])
 
-task.resources.append(input_bucket)
+task.resources.append(input_bucket1)
+task.resources.append(input_bucket2)
 task.results = output_bucket  
 
 task.snapshot(600)  # Define checkpoints in seconds
