@@ -1,8 +1,9 @@
 {
-  "name": "resnet18_memmap_full-train_augment_no-downscale_lr_plateau",
+  "name": "resnet34_memmap_full-train_augment_no-downscale_lr_plateau",
   "batch_size": 512,
-  "learning_rate": 3e-4,
-  "num_epochs": 10,
+  "learning_rate": 2e-4,
+  "begin_epoch": 10,
+  "num_epochs": 40,
   "image_height": 64,
   "image_width": 96,
   "pos_weight": 0.1633,
