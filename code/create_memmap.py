@@ -1,3 +1,13 @@
+"""
+This script can be used to create a memory map (np.memmap object). 
+It will store all the dataset in 1 file, which will be partially loaded to the 
+memory during the training. 
+
+It allows to avoid the restriction on the number of files. 
+Additionally, using memory map can increase the speed of the training due to the 
+mode efficient memory usage and I/O operations. 
+"""
+
 import numpy as np
 import random
 import os
