@@ -1,10 +1,9 @@
 import os
-import random
 
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader, Subset
+from torch.utils.data import DataLoader
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 
@@ -30,7 +29,7 @@ def count_parameters(model):
 def init_wandb(config, run_name):
     if not config["activate"]:
         return
-    
+
     if "wandb_key" in config:
         wandb.login(key=config["wandb_key"])
 
@@ -128,7 +127,6 @@ def train(config):
             running_loss += loss.item()
 
             if batch_idx % 100 == 0:
-
                 all_labels = labels.cpu().numpy()
                 all_outputs = outputs.squeeze().detach().cpu().numpy()
 
@@ -287,11 +285,6 @@ if __name__ == "__main__":
     parser.add_argument("mode", type=str, help="train / test mode", default="train")
     parser.add_argument("--memmap", help="memmap enable", action="store_true")
     parser.add_argument("--config", type=str, help="Path to the training config")
-    parser.add_argument("--datadir", type=str, help="Path to the training config")
-    parser.add_argument("--weights", type=str, help="Path to the last weights file")
-    parser.add_argument(
-        "--wandb_run_id", type=str, help="Wandb Run ID to resume", default=None
-    )
 
     args = parser.parse_args()
 
