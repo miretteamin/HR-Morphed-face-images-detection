@@ -20,9 +20,10 @@ For ```model_name``` field following values are available:
 1. debugnn
 2. s2dcnn
 3. efficientnet_b0
-4. resnet18
-5. resnet34
-6. mobilenet_v3_small
+4. efficientnet_b1
+5. resnet18
+6. resnet34
+7. mobilenet_v3_small
 
 Refer to the report provided in the repository for the description of the DebugNN and S2DCNN architechtures. 
 
