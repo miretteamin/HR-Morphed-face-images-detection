@@ -1,0 +1,21 @@
+{
+  "QARNOT_REPO": "qarnotlab/blank-images",
+  "QARNOT_TAG": "qarnot_cuda-12.3.1-devel-ubuntu22.04",
+  "QARNOT_PROFILE": "docker-nvidia-bi-a6000-network-ssh",
+
+  "QARNOT_TASK_NAME": "train_all_40epochs_effecientnet_b0",
+
+  "DOCKER_ACCOUNT": "miretteamin",
+  "DOCKER_PASSWORD": "dckr_pat_MuKCFvAZCZiQ1E9DRljMSqdDXG8",
+  "DOCKER_SRV": "https://registry-1.docker.io",
+  
+
+  "DOCKER_SSH": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMVsL2+esKcz0C2q2fsZRiPkMJjx+ECHnw+dSH6DLUyO mirette.moawad@polytechnique.edu",
+
+  "QARNOT_CPU_MIN": 16,
+  "QARNOT_TOKEN": "d6ef7c49b6f54cb8fd2547de73152f8149944a9bfdba34075e7e7b44c5dcdc325e12be90ffa04396fce341058b7b45cac3eb9aff786c0e0349a3425beac51d4e",
+  "QARNOT_SSH_KEY": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCysZdVbtLJy+CpYJTuG6qclfTIC5tbSiyH6m3YdiHGxunKGh7jmcoc1D8njna4lM6MJBNDgeilx+RoydNID0tPS6NjdW9hZQgz/E0CwEmmZ26QfX6aDydhR4a6P657amh71e3aU4f+u2YCfnG383P2A22SBcXuDEzP4Ze8rjaGyN3/jNM4plo0upX9lUyPFBBdIG/y4m3n7pMfjAkgdEstlgWShwEK/Rg1oaDJiDE7MCodgZCiOm0w7iWgCirG2ZFtNCwJS0RO3Hc85fUMxMmdSYyQSHn7UQdtfKH8wfZKRqnEN+QHrUPn+EbQm8biHp+vJCinvwHc+0eo6TFdhYm350vv1x6GMsimUjdLViQ0slJn3LDxg49W/1htn9Zfs2of7dk0WAXdq+AGqQV72jRfFQkNnG2KaI8g6Koj0g7MK3TfhlgkPhR0AzXkyATNDt/Aw5tyHdAw8qRHSXTysKqeU33MD9vQO80H3QYurjNali5YFiKRcwH3OK0V1WtJvZ/NvFSIIGY40mcogax38m/ZbZITKGhR5mrI2ZaMJ1Bz7PLx14GBP8RJEd+yHMGKPh0TuIyTJoV9Esi1skMvuiMtfiufyA2lVCEGzSzTMrW6Fs9s0+CBJr/meHCm0Eg8jyvzcAHT5laccT2cYHQmHkwJG5MOBap/T8AYDkeDkkQSeQ== mirette.moawad@polytechnique.edu",
+
+  "INPUT_BUCKET": "full.dataset",
+  "OUTPUT_BUCKET": "output_full"
+}

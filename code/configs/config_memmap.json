@@ -1,0 +1,27 @@
+{
+  "name": "resnet34_memmap_full-train_augment_no-downscale_lr_plateau",
+  "model_name": "efficientnet_b0",
+  "batch_size": 16,
+  "optimizer": "adam",
+  "learning_rate": 2e-4,
+  "scheduler": "ReduceLROnPlateau",
+  "begin_epoch": 10,
+  "num_epochs": 40,
+  "image_height": 64,
+  "image_width": 96,
+  "pos_weight": 0.1633,
+  "dataset_dir": "/Users/igorgogarev/Documents/m2/idemia/data/Crop_96_2fp_eye",
+  "train_memmap": "/Users/igorgogarev/Documents/m2/idemia/data/prod/train_images.dat",
+  "train_labels": "/Users/igorgogarev/Documents/m2/idemia/data/prod/train_labels.npy",
+  "val_memmap": "/Users/igorgogarev/Documents/m2/idemia/data/prod/val_images.dat",
+  "val_labels": "/Users/igorgogarev/Documents/m2/idemia/data/prod/val_labels.npy",
+  "weights_path": "",
+  "save_dir": "./logs/",
+  "wandb":{
+    "activate": true,
+    "wandb_key": "b720adf497c3c34f4e18be46e08aaba5ff31321b",
+    "wandb_run_id": "",
+    "project": "face-morph-detection",
+    "entity": "mirettemoawad-ecole-polytechnique"
+  }
+}
