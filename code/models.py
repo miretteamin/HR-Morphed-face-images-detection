@@ -31,6 +31,8 @@ class DebugNN(nn.Module):
         return x
 
 
+
+
 class SpaceToDepth(nn.Module):
     def __init__(self, block_size):
         super(SpaceToDepth, self).__init__()
@@ -40,6 +42,7 @@ class SpaceToDepth(nn.Module):
         B, C, H, W = x.size()
         block_size = self.block_size
         # Check if spatial dimensions are divisible by the block size
+
         assert H % block_size == 0 and W % block_size == 0, (
             "Height and Width must be divisible by block size"
         )

@@ -79,8 +79,10 @@ def train(config):
             transform=val_transform,
         )
 
+
     print(f"Total number of train objects: {len(train_dataset)}.")
     print(f"Total number of val objects: {len(val_dataset)}.")
+
 
     train_loader = DataLoader(
         train_dataset, batch_size=config["batch_size"], shuffle=True, num_workers=0

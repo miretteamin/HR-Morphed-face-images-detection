@@ -5,13 +5,16 @@ import tqdm
 from torch.utils.data import DataLoader
 from torchvision import models
 from data import MorphDataset, get_transforms
+
 from metrics import MACER, BPCER, MACER_at_BPCER
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import json
 import numpy as np
+
 from models import S2DCNN
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 
 def load_model(checkpoint_path, model_name="efficientnet_b0"):
@@ -68,7 +71,6 @@ def evaluate(model, val_loader):
 
     return all_labels, all_outputs
 
-
 def compute_metrics(labels, outputs, threshold=0.5):
     """
     Compute all metrics based on predictions and ground truths.
@@ -94,6 +96,7 @@ def compute_metrics(labels, outputs, threshold=0.5):
         "f1_score": f1,
         "macer": macer,
         "bpcer": bpcer,
+
         "macer_at_bpcer": macer_at_bpcer,
     }
 
@@ -105,6 +108,7 @@ def main(args):
     results_file = "validation/evaluation_total.json"
     if os.path.exists(results_file):
         with open(results_file, "r") as f:
+
             all_results = json.load(f)
     else:
         all_results = {"models": []}
@@ -123,6 +127,7 @@ def main(args):
         val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=4
     )
 
+
     num_samples = len(val_dataset)
     print(f"Loaded validation dataset with {num_samples} samples.")
 
@@ -130,6 +135,7 @@ def main(args):
     labels, outputs = evaluate(model, val_loader)
 
     metrics = compute_metrics(labels, outputs)
+
 
     model_entry = next(
         (m for m in all_results["models"] if m["model_name"] == args.model_name), None
@@ -184,6 +190,7 @@ def main(args):
             }
         )
 
+
     with open(results_file, "w") as f:
         json.dump(all_results, f, indent=4)
 
@@ -191,6 +198,7 @@ def main(args):
     for key, value in metrics.items():
         print(f"{key}: {value:.4f}")
     print(f"\nAll results saved to {results_file}")
+
 
 
 if __name__ == "__main__":
