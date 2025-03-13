@@ -403,3 +403,4 @@ FodyWeavers.xsd
 # WandB & logs
 code/logs/
 code/wandb/
+wandb/
