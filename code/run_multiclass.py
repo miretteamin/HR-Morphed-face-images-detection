@@ -79,10 +79,8 @@ def train(config):
             transform=val_transform,
         )
 
-
     print(f"Total number of train objects: {len(train_dataset)}.")
     print(f"Total number of val objects: {len(val_dataset)}.")
-
 
     train_loader = DataLoader(
         train_dataset, batch_size=config["batch_size"], shuffle=True, num_workers=0
@@ -91,7 +89,7 @@ def train(config):
         val_dataset, batch_size=config["batch_size"], shuffle=False, num_workers=0
     )
 
-    model = get_model(config["model_name"])
+    model = get_model(config["model_name"], n_output=8)
 
     if config["weights_path"]:
         checkpoint = torch.load(config["weights_path"])
@@ -106,9 +104,8 @@ def train(config):
     model = model.to(DEVICE)
     model.eval()
 
-    criterion = nn.BCEWithLogitsLoss(
-        pos_weight=torch.tensor(config["pos_weight"]).to(device=DEVICE)
-    )
+    train_criterion = nn.CrossEntropyLoss()
+
     optimizer = get_optimizer(config, model)
     lr_scheduler = get_scheduler(config, optimizer)
 
@@ -119,8 +116,10 @@ def train(config):
         model.train()
         for batch_idx, (images, labels) in enumerate(tqdm.tqdm(train_loader)):
             images, labels = images.to(DEVICE), labels.to(DEVICE)
+
             outputs = model(images)
-            loss = criterion(outputs.squeeze(), labels.float())
+
+            loss = train_criterion(outputs, labels.long())
 
             optimizer.zero_grad()
             loss.backward()
@@ -129,7 +128,10 @@ def train(config):
             running_loss += loss.item()
 
             if batch_idx % 100 == 0:
-                all_labels = labels.cpu().numpy()
+                # Calculate metrics
+                all_labels = (labels > 0).int().cpu().numpy()
+                outputs = torch.softmax(outputs, dim=1)
+                outputs = 1 - outputs[:, 0]
                 all_outputs = outputs.squeeze().detach().cpu().numpy()
 
                 preds = (torch.sigmoid(outputs) >= 0.5).int().cpu().numpy()
@@ -161,21 +163,21 @@ def train(config):
                     "---- Recall: ",
                     rec,
                 )
-                if config["wandb"]["activate"]:
-                    wandb.log(
-                        {
-                            "epoch": epoch + 1,
-                            "train_loss": running_loss / (batch_idx + 1),
-                            "f1_score": f1,
-                            "accuracy": acc,
-                            "precision": prec,
-                            "recall": rec,
-                            "macer": macer,
-                            "bpcer": bpcer,
-                            "macer_at_bpcer": macer_at_bpcer,
-                            "lr": optimizer.param_groups[0]["lr"],
-                        }
-                    )
+
+                wandb.log(
+                    {
+                        "epoch": epoch + 1,
+                        "train_loss": running_loss / (batch_idx + 1),
+                        "f1_score": f1,
+                        "accuracy": acc,
+                        "precision": prec,
+                        "recall": rec,
+                        "macer": macer,
+                        "bpcer": bpcer,
+                        "macer_at_bpcer": macer_at_bpcer,
+                        "lr": optimizer.param_groups[0]["lr"],
+                    }
+                )
 
         train_loss = running_loss / len(train_loader)
         print(
@@ -197,17 +199,13 @@ def train(config):
                 images, labels = images.to(DEVICE), labels.to(DEVICE)
 
                 outputs = model(images)
-                loss = criterion(outputs.squeeze(), labels.float())
-
-                val_running_loss += loss.item()
+                outputs = torch.softmax(outputs, dim=1)
+                outputs = 1 - outputs[:, 0]
 
                 all_labels.extend(labels.cpu().numpy())
                 all_outputs.extend(outputs.squeeze().cpu().numpy())
 
-            val_loss = val_running_loss / len(val_loader)
-            print(
-                f"Epoch [{epoch + 1}/{config['num_epochs']}], Val loss: {val_running_loss / len(val_dataset):.3f}"
-            )
+            print(f"Epoch [{epoch + 1}/{config['num_epochs']}]")
 
             all_labels = np.array(all_labels)
             all_outputs = np.array(all_outputs)
@@ -263,12 +261,13 @@ def train(config):
                 print(f"✅ Model checkpoint saved: {checkpoint_path}")
             except Exception as e:
                 print(f"❌ Error saving model checkpoint at {checkpoint_path}: {e}")
+
             if config["wandb"]["activate"]:
                 wandb.log(
                     {
                         "epoch": epoch + 1,
                         "train_loss_val": train_loss,
-                        "val_loss": val_loss,
+                        # "val_loss": val_loss,
                         "accuracy_val": acc_val,
                         "precision_val": prec_val,
                         "recall_val": rec_val,
@@ -278,6 +277,7 @@ def train(config):
                         "macer_at_bpcer_val": macer_at_bpcer_val,
                     }
                 )
+
     if config["wandb"]["activate"]:
         wandb.finish()
 

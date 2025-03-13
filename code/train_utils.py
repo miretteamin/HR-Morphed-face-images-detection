@@ -6,7 +6,7 @@ from torch.optim.lr_scheduler import StepLR, ReduceLROnPlateau, CosineAnnealingL
 
 from models import DebugNN, S2DCNN
 
-def get_model(model_name):
+def get_model(model_name, n_output=1):
     """Facade to create a model for the training
 
     Args:
@@ -23,19 +23,19 @@ def get_model(model_name):
 
     elif model_name == "efficientnet_b0":
         model = models.efficientnet_b0(weights="IMAGENET1K_V1")
-        model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, 1)
+        model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, n_output)
 
     elif model_name == "resnet18":
         model = models.resnet18(weights="DEFAULT")
-        model.fc = nn.Linear(in_features=model.fc.in_features, out_features=1)
+        model.fc = nn.Linear(in_features=model.fc.in_features, out_features=n_output)
 
     elif model_name == "resnet34":
         model = models.resnet34(weights="DEFAULT")
-        model.fc = nn.Linear(in_features=model.fc.in_features, out_features=1)
+        model.fc = nn.Linear(in_features=model.fc.in_features, out_features=n_output)
 
     elif model_name == "mobilenet_v3_small":
         model = models.mobilenet_v3_small(weights="MobileNet_V3_Small_Weights.DEFAULT")
-        model.classifier[3] = torch.nn.Linear(model.classifier[3].in_features, 1)
+        model.classifier[3] = torch.nn.Linear(model.classifier[3].in_features, n_output)
 
     return model
 

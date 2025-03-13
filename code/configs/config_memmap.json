@@ -12,7 +12,7 @@
   "pos_weight": 0.1633,
   "dataset_dir": "/Users/igorgogarev/Documents/m2/idemia/data/Crop_96_2fp_eye",
   "train_memmap": "/Users/igorgogarev/Documents/m2/idemia/data/prod/train_images.dat",
-  "train_labels": "/Users/igorgogarev/Documents/m2/idemia/data/prod/train_labels.npy",
+  "train_labels": "/Users/igorgogarev/Documents/m2/idemia/data/prod/train_multiclass_labels.npy",
   "val_memmap": "/Users/igorgogarev/Documents/m2/idemia/data/prod/val_images.dat",
   "val_labels": "/Users/igorgogarev/Documents/m2/idemia/data/prod/val_labels.npy",
   "weights_path": "",
