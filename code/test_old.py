@@ -4,7 +4,7 @@ import torch
 import tqdm
 from torch.utils.data import DataLoader
 from torchvision import models
-from data import MorphDataset, trainval_transform
+from data import MorphDataset, get_transforms
 from metrics import MACER, BPCER, MACER_at_BPCER
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import json
@@ -89,7 +89,7 @@ def main(args):
     with open(args.config, 'r') as file:
         config = json.load(file)
 
-    results_file = "evaluation_results.json"
+    results_file = "results/evaluation_old.json"
     if os.path.exists(results_file):
         with open(results_file, 'r') as f:
             all_results = json.load(f)
@@ -143,13 +143,13 @@ def main(args):
             val_dataset = MorphDataset(
                 dataset_dir=args.datadir,
                 txt_paths=[subset_file, basebio_dataset],
-                transform=trainval_transform
+                transform=get_transforms(is_train=False)
             )
         elif subset_file in normal_datasets:
             val_dataset = MorphDataset(
                 dataset_dir=args.datadir,
                 txt_paths=[subset_file],
-                transform=trainval_transform
+                transform=get_transforms(is_train=False)
             )
         else:
             print(f"Unknown dataset: {subset_file}")
