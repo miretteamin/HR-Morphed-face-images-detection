@@ -102,7 +102,7 @@ def main(args):
     with open(args.config, "r") as file:
         config = json.load(file)
 
-    results_file = "validation/evaluation_section.json"
+    results_file = "results/evaluation_section.json"
     if os.path.exists(results_file):
         with open(results_file, "r") as f:
             all_results = json.load(f)
