@@ -1,0 +1,188 @@
+{
+    "models": [
+        {
+            "model_name": "efficientnet_b1_greyscale",
+            "checkpoint": [
+                {
+                    "model_checkpoint": "model_epoch_19.pth",
+                    "val_datasets": [
+                        {
+                            "dataset_name": "total",
+                            "metrics": {
+                                "accuracy": 0.9795488428286336,
+                                "precision": 0.9970162179184381,
+                                "recall": 0.9794316340617399,
+                                "f1_score": 0.9881457004024259,
+                                "macer": 0.0205683659382601,
+                                "bpcer": 0.019664816063923625,
+                                "macer_at_bpcer": 0.03261781663643992
+                            },
+                            "num_samples": 297147
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "model_name": "efficientnet_b1_full",
+            "checkpoint": [
+                {
+                    "model_checkpoint": "model_epoch_25.pth",
+                    "val_datasets": [
+                        {
+                            "dataset_name": "total",
+                            "metrics": {
+                                "accuracy": 0.9776070429787277,
+                                "precision": 0.9972487674715107,
+                                "recall": 0.9769645128982487,
+                                "f1_score": 0.9870024338694617,
+                                "macer": 0.023035487101751347,
+                                "bpcer": 0.018082291288330825,
+                                "macer_at_bpcer": 0.03331000266820314
+                            },
+                            "num_samples": 297147
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "model_name": "resnet34_full",
+            "checkpoint": [
+                {
+                    "model_checkpoint": "model_epoch_20.pth",
+                    "val_datasets": [
+                        {
+                            "dataset_name": "total",
+                            "metrics": {
+                                "accuracy": 0.9776743497326239,
+                                "precision": 0.9958399093202561,
+                                "recall": 0.9784339581053437,
+                                "f1_score": 0.98706020496136,
+                                "macer": 0.021566041894656246,
+                                "bpcer": 0.027421781767239143,
+                                "macer_at_bpcer": 0.041469290528652246
+                            },
+                            "num_samples": 297147
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "model_name": "resnet34_greyscale",
+            "checkpoint": [
+                {
+                    "model_checkpoint": "model_epoch_21.pth",
+                    "val_datasets": [
+                        {
+                            "dataset_name": "total",
+                            "metrics": {
+                                "accuracy": 0.9782329957899626,
+                                "precision": 0.9951104181476144,
+                                "recall": 0.979802862324585,
+                                "f1_score": 0.9873973157919349,
+                                "macer": 0.020197137675415023,
+                                "bpcer": 0.03229907123955793,
+                                "macer_at_bpcer": 0.043882274237145254
+                            },
+                            "num_samples": 297147
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "model_name": "resnet18_full",
+            "checkpoint": [
+                {
+                    "model_checkpoint": "model_epoch_10.pth",
+                    "val_datasets": [
+                        {
+                            "dataset_name": "total",
+                            "metrics": {
+                                "accuracy": 0.9683557296556923,
+                                "precision": 0.9957940727064366,
+                                "recall": 0.967726342898906,
+                                "f1_score": 0.9815595993826398,
+                                "macer": 0.032273657101093964,
+                                "bpcer": 0.027421781767239143,
+                                "macer_at_bpcer": 0.06789223552886493
+                            },
+                            "num_samples": 297147
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "model_name": "efficientnet_b0_full",
+            "checkpoint": [
+                {
+                    "model_checkpoint": "model_epoch_25.pth",
+                    "val_datasets": [
+                        {
+                            "dataset_name": "total",
+                            "metrics": {
+                                "accuracy": 0.975678704479601,
+                                "precision": 0.9974629535811538,
+                                "recall": 0.9745321943843991,
+                                "f1_score": 0.9858642522253974,
+                                "macer": 0.02546780561560087,
+                                "bpcer": 0.01662948165827842,
+                                "macer_at_bpcer": 0.03498052985100599
+                            },
+                            "num_samples": 297147
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "model_name": "s2d_greyscale",
+            "checkpoint": [
+                {
+                    "model_checkpoint": "model_epoch_7.pth",
+                    "val_datasets": [
+                        {
+                            "dataset_name": "total",
+                            "metrics": {
+                                "accuracy": 0.9413892787071718,
+                                "precision": 0.9861483449368492,
+                                "recall": 0.9459398842231855,
+                                "f1_score": 0.965625727808502,
+                                "macer": 0.05406011577681447,
+                                "bpcer": 0.08914024801535828,
+                                "macer_at_bpcer": 0.23219167752638234
+                            },
+                            "num_samples": 297147
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "model_name": "s2d_full",
+            "checkpoint": [
+                {
+                    "model_checkpoint": "model_epoch_27.pth",
+                    "val_datasets": [
+                        {
+                            "dataset_name": "total",
+                            "metrics": {
+                                "accuracy": 0.9422104211047058,
+                                "precision": 0.9909947652497183,
+                                "recall": 0.9421579962954513,
+                                "f1_score": 0.9659595050529479,
+                                "macer": 0.05784200370454871,
+                                "bpcer": 0.05743786644528615,
+                                "macer_at_bpcer": 0.18716478281213142
+                            },
+                            "num_samples": 297147
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
