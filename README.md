@@ -52,7 +52,7 @@ python run.py train --config configs/config_memmap.json --memmap
 
 ### 5. Model Evaluation
 
-After training, the performance of the model can be evaluated using two different testing methods:
+After training, the performance of the model can be evaluated using three different testing methods:
 
 1. Per-class evaluation: Conducted using `code/test_section.py`, this method computes test metrics separately for each morph class. The results are stored in `results/evaluation_section.json`.
 
@@ -64,6 +64,12 @@ python test_section.py --config configs/config.json --datadir path/to/dataset --
 
 ```
 python test_total.py --config configs/config.json --datadir path/to/dataset --checkpoint path/to/checkpoint.pth --model_name <architecture_name> --batch_size <batch_size> --name <name_in_json>
+```
+
+3. **Single-image inference:** Conducted using `code/infer.py`, this method performs inference on individual images listed in a text file and stores the results in `results/<output_filename>.json`.
+
+```
+python infer.py --datafile path/to/images.txt --model_name <architecture_name> --checkpoint path/to/checkpoint.pth --save <output_filename>.json
 ```
 
 Replace `<architecture_name>` with the architecture used for training and `<name_in_json>` is the name used in the results json file.
