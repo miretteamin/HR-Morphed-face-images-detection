@@ -49,3 +49,25 @@ Use the following command to launch the training using a dataset stored as a col
 ```
 python run.py train --config configs/config_memmap.json --memmap
 ```
+
+### 5. Model Evaluation
+
+After training, the performance of the model can be evaluated using two different testing methods:
+
+1. **Per-class evaluation**  
+   Conducted using `code/test_section.py`, this method computes test metrics separately for each morph class. The results are stored in `results/evaluation_section.json`.
+
+```
+python test_section.py --config configs/config.json --datadir path/to/dataset --checkpoint path/to/checkpoint.pth --model_name <architecture_name> --batch_size <batch_size> --name <name_in_json>
+```
+
+2. **Overall evaluation**  
+   Conducted using `code/test_total.py`, this method evaluates the model on the entire dataset as a whole. The results are stored in `results/evaluation_total.json`.
+
+```
+python test_total.py --config configs/config.json --datadir path/to/dataset --checkpoint path/to/checkpoint.pth --model_name <architecture_name> --batch_size <batch_size> --name <name_in_json>
+```
+
+Replace `<architecture_name>` with the architecture used for training and `<name_in_json>` is the name used in the results json file.
+
+For a visual analysis of the evaluation results, refer to `results/plot.ipynb`, which generates plots for better interpretation of model performance.
