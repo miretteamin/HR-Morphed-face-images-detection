@@ -237,7 +237,7 @@ if __name__ == "__main__":
         help="Batch size for evaluation (default: 128).",
     )
     parser.add_argument(
-        "--name", type=str, default="efficientnet_b0", help="Model aname in the json."
+        "--name", type=str, default="efficientnet_b0", help="Model name in the json."
     )
 
     args = parser.parse_args()
