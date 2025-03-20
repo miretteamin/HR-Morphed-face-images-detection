@@ -71,3 +71,9 @@ python test_total.py --config configs/config.json --datadir path/to/dataset --ch
 Replace `<architecture_name>` with the architecture used for training and `<name_in_json>` is the name used in the results json file.
 
 For a visual analysis of the evaluation results, refer to `results/plot.ipynb`, which generates plots for better interpretation of model performance.
+
+Additionally, `code/test_old.py`, `results/evaluation_old.json` and `results/plot_old.ipynb` are available, which were used mid-research for the initial experiments and results. These files correspond to an earlier phase of the study (and may utilize different models).
+
+```
+python test_old.py --config configs/config.json --datadir path/to/dataset --checkpoint path/to/checkpoint.pth --model_name <model_name> --batch_size <batch_size>
+```
