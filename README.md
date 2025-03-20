@@ -66,7 +66,7 @@ python test_section.py --config configs/config.json --datadir path/to/dataset --
 python test_total.py --config configs/config.json --datadir path/to/dataset --checkpoint path/to/checkpoint.pth --model_name <architecture_name> --batch_size <batch_size> --name <name_in_json>
 ```
 
-3. **Single-image inference:** Conducted using `code/infer.py`, this method performs inference on individual images listed in a text file and stores the results in `results/<output_filename>.json`.
+3. **Any-images inference:** We did a script that can infer list of any images and calculate the corresponding metrics. Just create a .txt file with rows in format `<absolute path to image> <label>` and use path to it for the --datafile parameters. All other parameters remain the same.
 
 ```
 python infer.py --datafile path/to/images.txt --model_name <architecture_name> --checkpoint path/to/checkpoint.pth --save <output_filename>.json
