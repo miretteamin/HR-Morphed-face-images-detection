@@ -1,6 +1,6 @@
 # HR-Morphed-face-images-detection
 
-## This is a repository to conduct the experiments for morphed images detection based on the given eye photo. 
+## This is a repository to conduct the experiments for morphed images detection. 
 
 ### 1. Environment installation
 ```
