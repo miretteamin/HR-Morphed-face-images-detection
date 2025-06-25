@@ -118,16 +118,11 @@ def main(args):
     total_samples = 0
 
     concat_datasets = [
-        "E01_Global_val_lab.txt",
-        "E04_Local_Match_val_lab.txt",
-        "E05_DST_val_lab.txt",
-        "E06_Twente_val_lab.txt",
-        "E07_Lincoln_val_lab.txt",
-        "E09_UNIBO_v2_val_lab.txt",
-        "ManualMorphs_01_val_lab.txt",
+        "val1.txt",
+        "val2.txt"
     ]
-    normal_datasets = ["FEI_val_lab.txt", "facelab_london_val_lab.txt"]
-    basebio_dataset = "BaseBio_All_eval_lab.txt"
+    normal_datasets = ["val12.txt", "val13.txt"]
+    baseval_dataset = "val.txt"
 
     model_entry = next(
         (m for m in all_results["models"] if m["model_name"] == args.model_name), None
@@ -154,7 +149,7 @@ def main(args):
         model_entry["checkpoint"].append(checkpoint_entry)
 
     for subset_file in config["val_txt"]:
-        if subset_file == basebio_dataset:
+        if subset_file == baseval_dataset:
             continue
 
         print(f"\nProcessing validation dataset: {subset_file}")
@@ -162,7 +157,7 @@ def main(args):
         if subset_file in concat_datasets:
             val_dataset = MorphDataset(
                 dataset_dir=args.datadir,
-                txt_paths=[subset_file, basebio_dataset],
+                txt_paths=[subset_file, baseval_dataset],
                 transform=get_transforms(is_train=False),
             )
         elif subset_file in normal_datasets:
