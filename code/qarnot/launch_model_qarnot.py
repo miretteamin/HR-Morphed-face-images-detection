@@ -90,10 +90,10 @@ while not SSH_TUNNELING_DONE:
     logs = task.stdout().split("\n")  # Get logs
     if task.state != LAST_STATE:
         LAST_STATE = task.state
-        print(f"\n📌 Current Task State: {LAST_STATE}")
+        print(f"\nCurrent Task State: {LAST_STATE}")
 
     print(f"\n🔍 Checking task state: {task.state} ...")
-    print("\n📝 Task Logs:")
+    print("\nTask Logs:")
     for line in logs:
         print(f"   {line}")
 
